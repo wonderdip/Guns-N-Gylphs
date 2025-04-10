@@ -1,0 +1,121 @@
+[gd_scene load_steps=15 format=3 uid="uid://dwva6dkjc4mhv"]
+
+[ext_resource type="Script" path="res://Scripts/Enemies/mummy.gd" id="1_div5c"]
+[ext_resource type="Texture2D" uid="uid://cgfdp2uaodkjw" path="res://Assets/Enemies/Mummy - Walk-Sheet.png" id="2_v4amn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ubkvo"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(0, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2okl6"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(24, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5pplo"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(48, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lb7ma"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(72, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pd82q"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(96, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v6thu"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(120, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1eteb"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(144, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ep80"]
+atlas = ExtResource("2_v4amn")
+region = Rect2(168, 0, 24, 24)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hu3af"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ubkvo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2okl6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5pplo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5pplo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lb7ma")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pd82q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v6thu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1eteb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1eteb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ep80")
+}],
+"loop": true,
+"name": &"Walk",
+"speed": 10.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3na5j"]
+radius = 18.0
+height = 76.0
+
+[sub_resource type="Curve" id="Curve_jaiqr"]
+_data = [Vector2(0.00561798, 1), 0.0, 0.0, 0, 0, Vector2(0.994382, 0.285714), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_74545"]
+offsets = PackedFloat32Array(0, 0.553333, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.858824, 1, 1, 1, 0)
+
+[node name="Mummy" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 7
+motion_mode = 1
+script = ExtResource("1_div5c")
+Health = 20.0
+Damage = 1
+Speed = 150
+knockback_strength = 200.0
+knockback_duration = 0.1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(4, 4)
+sprite_frames = SubResource("SpriteFrames_hu3af")
+animation = &"Walk"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -1)
+shape = SubResource("CapsuleShape2D_3na5j")
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 10
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 100.0
+initial_velocity_max = 150.0
+scale_amount_min = 4.0
+scale_amount_max = 8.0
+scale_amount_curve = SubResource("Curve_jaiqr")
+color_ramp = SubResource("Gradient_74545")

@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://bx6apwy0hcjsy"]
+
+[ext_resource type="Script" path="res://Scripts/hud.gd" id="1_lngrp"]
+[ext_resource type="Texture2D" uid="uid://6jasx6sdtb38" path="res://Assets/Guns/bullet.png" id="2_qjnxg"]
+[ext_resource type="PackedScene" uid="uid://8mpb0gddst7g" path="res://Scenes/GUI/MiniMap.tscn" id="3_xw237"]
+
+[node name="HUD" type="Node2D"]
+script = ExtResource("1_lngrp")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_left = 1048.0
+offset_right = 1150.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 26
+text = "Ammo"
+horizontal_alignment = 1
+
+[node name="AmmoSprite" type="Sprite2D" parent="CanvasLayer"]
+position = Vector2(1100, 48)
+scale = Vector2(4, 4)
+texture = ExtResource("2_qjnxg")
+flip_h = true
+
+[node name="MiniMap" parent="." instance=ExtResource("3_xw237")]
