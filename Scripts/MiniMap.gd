@@ -92,7 +92,7 @@ func draw_minimap_on_container():
 	
 	# Draw the player (always at center)
 	minimap_container.draw_circle(Vector2(minimap_size.x / 2, minimap_size.y / 2), 
-		cell_size * minimap_zoom / 2, colors.player)
+		cell_size * minimap_zoom / 1.5, colors.player)
 	
 	# Draw enemies, items, etc.
 	draw_entities_on_container(grid_pos, cells_visible_x, cells_visible_y)
