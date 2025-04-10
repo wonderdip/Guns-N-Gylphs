@@ -396,6 +396,7 @@ func select_spawn_room(spawn_method: String = "first") -> Vector2i:
 		"random":
 			chosen_room = room_creation_order[randi() % room_creation_order.size()]
 		"middle":
+			@warning_ignore("integer_division")
 			var middle_index = int(room_creation_order.size() / 2)
 			chosen_room = room_creation_order[middle_index]
 		_:

@@ -57,12 +57,12 @@ func _physics_process(delta):
 		
 		# Initiate dodge when pressing dodge input and not already dodging
 		if Input.is_action_just_pressed("dodge") and can_dodge and direction.length() > 0:
-			start_dodge(direction)
+			start_dodge()
 	
 	move_and_slide()
 	
 	# Animation handling
-	update_animations(direction)
+	update_animations()
 	
 	# Handle facing direction based on mouse position
 	sprite_facing()
@@ -73,7 +73,7 @@ func _physics_process(delta):
 	#visibility handling
 	hand_visibility()
 
-func start_dodge(direction: Vector2):
+func start_dodge():
 	
 	dodging = true
 	can_dodge = false
@@ -93,7 +93,7 @@ func start_dodge(direction: Vector2):
 	left_hand_sprite.hide()
 	right_hand_sprite.hide()
 
-func update_animations(direction: Vector2):
+func update_animations():
 
 	if dodging:
 		# Play roll animation if it exists, otherwise use walk
