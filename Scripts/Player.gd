@@ -74,6 +74,7 @@ func _physics_process(delta):
 	hand_visibility()
 
 func start_dodge(direction: Vector2):
+	
 	dodging = true
 	can_dodge = false
 	dodge_timer = dodge_length

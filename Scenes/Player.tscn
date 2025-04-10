@@ -416,7 +416,7 @@ script = ExtResource("1_sa2fe")
 Speed = 600
 Health = 5
 dodge_length = 0.66
-dodge_cooldown = 0.7
+dodge_cooldown = 0.3
 dodge_invincibility_length = 0.6
 
 [node name="HurtBox" type="Area2D" parent="."]
