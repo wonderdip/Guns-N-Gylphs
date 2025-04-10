@@ -1,0 +1,1 @@
+An Absolutely Peak Game about a man who ventures deep into the pyramids illegally, further then anyone has ever went to discover the one and only Godly Item that can heal his brother back to into good health. Using his trusty pistol will he be able to find what he is looking for or will the dangers of the pyramid get to him????
