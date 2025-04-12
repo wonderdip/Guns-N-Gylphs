@@ -5,7 +5,7 @@ class_name Enemy
 @export var Damage: int = 0
 @export var Speed: int = 0
 
-@onready var player = get_node("/root/Game/Player")
+@onready var player = get_node("/root/World/Player")
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cpu_particles_2d = $CPUParticles2D
 @onready var collision_shape_2d = $CollisionShape2D
@@ -20,7 +20,8 @@ var camera2d: Camera2D
 var cameraShakeNoise: FastNoiseLite
 
 func _ready():
-	camera2d = get_node("/root/Game/Player/DynamicCamera")
+	add_to_group("enemies")
+	camera2d = player.get_node("DynamicCamera")
 	cameraShakeNoise = FastNoiseLite.new()
 
 func _physics_process(delta):

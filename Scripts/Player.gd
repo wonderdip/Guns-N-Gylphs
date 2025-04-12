@@ -1,4 +1,5 @@
 extends CharacterBody2D
+
 @onready var animated_sprite = $BodySprite
 @onready var left_hand_sprite = $LeftHandSprite
 @onready var right_hand_sprite = $RightHandSprite
@@ -29,6 +30,8 @@ var dodge_timer: float = 0.0
 var dodge_cooldown_timer: float = 0.0
 var dodge_facing_left: bool = false
 
+var mouse_pos: Vector2
+
 func _ready():
 	current_gun_parent = get_node("CurrentGun")
 	current_gun = current_gun_parent.get_children()
@@ -37,6 +40,7 @@ func _ready():
 
 func _physics_process(delta):
 	direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	mouse_pos = get_global_mouse_position()
 	
 	# Handle dodge cooldown timer
 	if dodge_cooldown_timer > 0:
@@ -74,11 +78,14 @@ func _physics_process(delta):
 	hand_visibility()
 
 func start_dodge():
+	var mouse_dir = (get_global_mouse_position() - player.global_position).normalized()
 	
 	dodging = true
 	can_dodge = false
 	dodge_timer = dodge_length
-	dodge_direction = direction.normalized()
+	
+	dodge_direction = mouse_dir
+	
 	invincibility(dodge_invincibility_length)
 
 	# Set dodge facing only if there's horizontal movement, otherwise keep current facing
@@ -110,6 +117,7 @@ func update_animations():
 
 
 func sprite_facing():
+	
 	if dodging:
 		# Use dodge direction to set facing
 		animated_sprite.flip_h = dodge_facing_left
@@ -117,7 +125,7 @@ func sprite_facing():
 		right_hand_sprite.flip_h = dodge_facing_left
 	else:
 		# Use mouse position to set facing
-		var mouse_pos = get_global_mouse_position()
+		
 		var face_left = mouse_pos.x < global_position.x
 		animated_sprite.flip_h = face_left
 		left_hand_sprite.flip_h = face_left
@@ -138,7 +146,7 @@ func check_enemy_collisions(delta):
 
 func hand_visibility():
 	
-	var mouse_pos = get_global_mouse_position()
+	mouse_pos = get_global_mouse_position()
 	
 	if dodging:
 		left_hand_sprite.hide()
@@ -194,7 +202,7 @@ func blink(length):
 	for i in range(blink_count):
 		blink_timer.start()
 		await blink_timer.timeout
-		animated_sprite.visible = not animated_sprite.visible  # Toggle visibility
+		hit_flash_player.play("HitFlash")
 	
 	animated_sprite.visible = true  # Ensure it's visible at the end
 

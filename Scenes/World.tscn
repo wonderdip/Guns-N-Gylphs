@@ -177,3 +177,5 @@ texture_scale = 4.35
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
 position = Vector2(-580, -324)
 color = Color(0.203922, 0.388235, 0.529412, 1)
+
+[node name="EnemySpawner" type="Node2D" parent="."]

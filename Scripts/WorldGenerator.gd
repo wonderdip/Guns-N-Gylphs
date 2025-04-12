@@ -49,6 +49,8 @@ var rooms = []
 var room_connections = {}  # Track connections between rooms
 var tile_count = null
 
+enum Room_State {ClEARED, LOCKED}
+var room_states = {}
 
 func _ready():
 	randomize() # Ensure true randomness each run
