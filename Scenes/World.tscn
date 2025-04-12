@@ -164,7 +164,7 @@ layer_0/z_index = -1
 
 [node name="Player" parent="." instance=ExtResource("3_j1551")]
 
-[node name="PointLight2D" type="PointLight2D" parent="Player"]
+[node name="PlayerLight" type="PointLight2D" parent="Player"]
 color = Color(0.752941, 0.270588, 0.231373, 1)
 energy = 0.5
 texture = ExtResource("4_l7pq6")
