@@ -18,6 +18,7 @@ config/icon="res://Assets/Characters/Archeologist.png"
 [autoload]
 
 FreezeFrameManager="*res://Scripts/freeze_frame_manager.gd"
+World="*res://Scenes/World.tscn"
 
 [display]
 

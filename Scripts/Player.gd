@@ -60,7 +60,7 @@ func _physics_process(delta):
 		velocity = direction * Speed
 		
 		# Initiate dodge when pressing dodge input and not already dodging
-		if Input.is_action_just_pressed("dodge") and can_dodge and direction.length() > 0:
+		if Input.is_action_just_pressed("dodge") and can_dodge:
 			start_dodge()
 	
 	move_and_slide()
