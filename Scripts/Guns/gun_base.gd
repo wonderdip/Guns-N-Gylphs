@@ -29,7 +29,7 @@ func _process(_delta):
 	
 	if Input.is_action_just_pressed("shoot"):
 		shoot()
-	
+		CameraShakeManager.cam_shake(5, 2, 0.2)
 	if player.dodging == true:
 		can_shoot = false
 	else:

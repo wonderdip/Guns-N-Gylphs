@@ -5,7 +5,8 @@ class_name Enemy
 @export var Damage: int = 0
 @export var Speed: int = 0
 
-@onready var player = get_node("/root/World/Player")
+@export var player: PackedScene
+
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cpu_particles_2d = $CPUParticles2D
 @onready var collision_shape_2d = $CollisionShape2D
@@ -45,8 +46,7 @@ func take_damage(amount):
 	FreezeFrameManager.framefreeze(0.1, 0.1)
 	cpu_particles_2d.restart()
 	apply_knockback(player.global_position)
-	var camera_tween = get_tree().create_tween()
-	camera_tween.tween_method(StartCameraShake, 8.0, 2.0, 0.8)
+	CameraShakeManager.cam_shake(8.0, 2.0, 0.8)
 	
 	if Health <= 0:
 		die()
@@ -55,11 +55,6 @@ func take_damage(amount):
 
 func damaged():
 	pass
-
-func StartCameraShake(intensity: float):
-	var cameraOffset = cameraShakeNoise.get_noise_1d(Time.get_ticks_msec()) * intensity
-	camera2d.offset.x = cameraOffset
-	camera2d.offset.y = cameraOffset
 
 func apply_knockback(source_position: Vector2):
 	# Set the knockback direction to be opposite of the player
