@@ -1,4 +1,4 @@
-[gd_scene load_steps=64 format=3 uid="uid://dekfi127ulci4"]
+[gd_scene load_steps=65 format=3 uid="uid://dekfi127ulci4"]
 
 [ext_resource type="Script" path="res://Scripts/Player.gd" id="1_sa2fe"]
 [ext_resource type="Shader" uid="uid://4spx5o2wdnxh" path="res://Shaders/hit_flash.tres" id="2_5ea5e"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://djlurups8mj5l" path="res://Assets/Characters/Hands/Hands2 - Walk-Sheet.png" id="5_35fxj"]
 [ext_resource type="Texture2D" uid="uid://b64yc17nmxr8f" path="res://Assets/Characters/Hands/Hands - Walk-Sheet.png" id="5_av4q2"]
 [ext_resource type="Script" path="res://Scripts/dynamic_cam.gd" id="10_sjgxa"]
+[ext_resource type="Texture2D" uid="uid://b1tlgbjsth3kq" path="res://Assets/light texture.png" id="12_moxu8"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tq7eg"]
 radius = 24.0
@@ -464,3 +465,9 @@ script = ExtResource("10_sjgxa")
 libraries = {
 "": SubResource("AnimationLibrary_kpu6g")
 }
+
+[node name="PlayerLight" type="PointLight2D" parent="."]
+color = Color(0.752941, 0.270588, 0.231373, 1)
+energy = 0.5
+texture = ExtResource("12_moxu8")
+texture_scale = 4.35

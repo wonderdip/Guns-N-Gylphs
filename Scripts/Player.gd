@@ -212,4 +212,4 @@ func hit_flash():
 	hit_flash_player.play("HitFlash")
 	await hit_flash_player.animation_finished
 	blink(1)
-
+	

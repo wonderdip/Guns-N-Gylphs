@@ -3,9 +3,10 @@ extends Node
 
 var camera2d: Camera2D
 var cameraShakeNoise: FastNoiseLite
-@onready var player = get_node("/root/World/Player")
 
 func _ready():
+	
+	var player = get_tree().get_root().find_child("Player", true, false)
 	camera2d = player.get_node("DynamicCamera")
 	cameraShakeNoise = FastNoiseLite.new()
 	

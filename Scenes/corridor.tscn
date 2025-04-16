@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxfgwqwutdb5s"]
+
+[ext_resource type="Script" path="res://Scripts/Corridor.gd" id="1_icwyc"]
+[ext_resource type="TileSet" uid="uid://ciskxo1sn8ydu" path="res://Assets/WorldTileSet.tres" id="2_4623j"]
+
+[node name="Corridor" type="Node2D"]
+script = ExtResource("1_icwyc")
+
+[node name="TileMap" type="TileMap" parent="."]
+scale = Vector2(4, 4)
+tile_set = ExtResource("2_4623j")
+format = 2
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]

@@ -24,3 +24,4 @@ texture = ExtResource("2_qjnxg")
 flip_h = true
 
 [node name="MiniMap" parent="." instance=ExtResource("3_xw237")]
+process_mode = 4

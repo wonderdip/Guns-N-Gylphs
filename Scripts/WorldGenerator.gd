@@ -1,426 +1,289 @@
 extends Node2D
 
-@export var tilemap: TileMap
+signal dungeon_ready
 
-# Tile atlas coordinates
-var floor_tiles: Array[Vector2i] = [Vector2i(1, 0), Vector2i(2, 0), Vector2i(3,0)
-, Vector2i(4,0), Vector2i(5,0), Vector2i(6,0), Vector2i(3,1), Vector2i(4,1), Vector2i(5,1)
-, Vector2i(6,1)]
-var wall_full: Vector2i = Vector2i(0, 0)
-var wall_top: Vector2i = Vector2i(0, 2)
-var wall_bottom: Vector2i = Vector2i(0, 1)
-var wall_left: Vector2i = Vector2i(2, 1)
-var wall_right: Vector2i = Vector2i(1, 1)
-var corner_top_left: Vector2i = Vector2i(1, 2)
-var corner_top_right: Vector2i = Vector2i(2, 2)
-var corner_bottom_left: Vector2i = Vector2i(1, 3)
-var corner_bottom_right: Vector2i = Vector2i(2, 3)
-var reverse_corner_top_right: Vector2i = Vector2i(3, 2)
-var reverse_corner_top_left: Vector2i = Vector2i(4, 2)
+# Grid settings
+@export var grid_size = Vector2(10, 10)  # 10x10 grid
+@export var tile_size = 16  # Size of a single tile in pixels
+@export var room_width_tiles = 10  # Number of tiles per room width
+@export var room_height_tiles = 10  # Number of tiles per room height
+@export var room_spacing = 2  # Additional spacing between rooms (in room units)
+@export var min_rooms = 5
+@export var max_rooms = 15
+@export var room_chance = 0.6  # Chance of a room spawning in a cell
+@export var first_room_position = Vector2(0, 0)  # Fixed position for the first room
+@export var door_width = 3  # Width of doors in tiles (odd number recommended)
+@export var use_custom_seed = false  # Whether to use a custom seed
+@export var custom_seed = 0  # Custom seed value if enabled
 
+# Scene references
+@export var room_scene: PackedScene
+@export var corridor_scene: PackedScene
 
-
-# Allow source_id to be set manually in the Inspector
-@onready var player = get_node("Player")
-@export var source_id: int = 1
-@export var layer_id: int = 0
-
-@export var dungeon_size: Vector2i = Vector2i(40, 40)
-@export var min_room_size: int = 5
-@export var max_room_size: int = 12
-@export var max_rooms: int = 10
-@export var corridor_length: int = 3
-@export var corridor_width: int = 1  # Width of corridors (1 = standard, 2+ = wider)
-@export var max_connections_per_room: int = 2  # Maximum connections per room
-@export var spawn_chance_decrease: float = 0.15  # How much spawn chance decreases per room
-
-var room_creation_order = []  # Stores rooms in creation order
-var player_spawn_room = null  # Will store the room for player spawning
-
-# Constants for tile types
-const WALL = 1
-const FLOOR = 0
-
-# Add this to help with debugging
-@export var debug_mode: bool = false
-
-var dungeon = []
-var rooms = []
-var room_connections = {}  # Track connections between rooms
-var tile_count = null
-
-enum Room_State {ClEARED, LOCKED}
-var room_states = {}
+# Tracking variables
+var rooms = []  # Array to store room instances
+var corridors = []  # Array to store corridor instances
+var room_grid = []  # 2D array to track which grid cells have rooms
+var connections = []  # Array to track connections between rooms
+var current_seed = 0  # Store the current seed
 
 func _ready():
-	randomize() # Ensure true randomness each run
+	# Add to a group for easier access from other scripts
+	add_to_group("dungeon_generator")
+	
+	# Generate the dungeon
+	generate_new_dungeon()
+	
+	# Signal that the dungeon is ready
+	emit_signal("dungeon_ready")
+
+func generate_new_dungeon():
+	# Clear any existing dungeon
+	clear_dungeon()
+	
+	# Set up the seed
+	if use_custom_seed:
+		current_seed = custom_seed
+	else:
+		current_seed = randi()
+	
+	seed(current_seed)
+	
+	for frames in 2:
+		await Engine.get_main_loop().process_frame
+	
+	# Generate the new dungeon
+	initialize_grid()
 	generate_dungeon()
-	apply_tiles()
+
+func clear_dungeon():
+	# Remove all room instances
+	for room_data in rooms:
+		if is_instance_valid(room_data["instance"]):
+			room_data["instance"].queue_free()
 	
-	# Choose a spawn room (e.g., "first", "last", "random", "middle")
-	var spawn_pos = select_spawn_room("first")
-	player.position = spawn_pos * 16 * 4
+	# Remove all corridor instances
+	for corridor in corridors:
+		if is_instance_valid(corridor):
+			corridor.queue_free()
 	
-	# For debugging
-	if debug_mode:
-		print("Player spawn position: ", spawn_pos)
-		print("Total rooms created: ", room_creation_order.size())
+	# Force removal of any remaining children that might be rooms or corridors
+	for child in get_children():
+		if child.name.begins_with("Room") or child.name.begins_with("Corridor"):
+			child.queue_free()
 	
-	# Now you can use spawn_pos to place your player
-	# Example: player.position = spawn_pos * tile_size
-	
-	# Add visual debugging in editor
-	if debug_mode:
-		print("Dungeon generation complete - ", rooms.size(), " rooms created")
-		print("TileMap valid: ", tilemap != null)
-		print("TileMap has tileset: ", tilemap.tile_set != null if tilemap != null else false)
-		print("Using source_id: ", source_id)
-		print("Using layer_id: ", layer_id)
+	# Clear tracking arrays
+	rooms.clear()
+	corridors.clear()
+	connections.clear()
+	room_grid.clear()
+
+func initialize_grid():
+	# Create a 2D array filled with null values
+	room_grid = []
+	for x in range(grid_size.x):
+		var column = []
+		for y in range(grid_size.y):
+			column.append(null)
+		room_grid.append(column)
 
 func generate_dungeon():
-	dungeon = []  # Reset dungeon
-	dungeon.resize(dungeon_size.x)
-	room_creation_order = []  # Reset room creation order
-	room_connections.clear()
-
-	# Fill dungeon with walls
-	for x in range(dungeon_size.x):
-		var row = []
-		row.resize(dungeon_size.y)
-		for y in range(dungeon_size.y):
-			row[y] = WALL
-		dungeon[x] = row
-
-	rooms.clear()
-
-	# Start with a single room in the middle
-	@warning_ignore("integer_division")
-	var start_x = int(dungeon_size.x / 2 - max_room_size / 2)
-	@warning_ignore("integer_division")
-	var start_y = int(dungeon_size.y / 2 - max_room_size / 2)
-	place_room(Vector2i(start_x, start_y), Vector2i(randi_range(min_room_size, max_room_size), randi_range(min_room_size, max_room_size)))
+	# First, decide how many rooms to create
+	var num_rooms = randi_range(min_rooms, max_rooms)
 	
-	# Add first room to creation order
-	room_creation_order.append(rooms[0])
+	# Start with the first room at a fixed position
+	create_room(first_room_position.x, first_room_position.y, 1)
 	
-	# Initialize room connections tracking
-	room_connections[0] = []
+	# Now generate the rest of the rooms through expansion
+	var current_room_count = 1
 	
-	# Try to place more rooms until max is reached or placement fails too many times
-	var max_attempts = max_rooms * 5
-	var attempts = 0
-	var base_chance = 1.0
-	
-	while rooms.size() < max_rooms and attempts < max_attempts:
-		# Calculate decreasing spawn chance as more rooms are added
-		var spawn_chance = base_chance - (rooms.size() * spawn_chance_decrease)
-		if spawn_chance <= 0.1:
-			spawn_chance = 0.1  # Minimum chance floor
-			
-		# Roll for room spawn based on current chance
-		if randf() > spawn_chance:
-			attempts += 1
-			continue
+	while current_room_count < num_rooms:
+		# Pick a random existing room
+		var source_room = rooms[randi() % rooms.size()]
+		var source_index = source_room["index"]
+		var source_pos = source_room["grid_pos"]
 		
-		# Pick a random existing room to connect from
-		var source_room_idx = randi() % rooms.size()
-		
-		# Skip if this room already has max connections
-		if room_connections[source_room_idx].size() >= max_connections_per_room:
-			attempts += 1
-			continue
-		
-		# Choose a random direction (up, right, down, left)
-		var directions = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
+		# Try to place a room in an adjacent cell
+		var directions = [Vector2(0, 1), Vector2(1, 0), Vector2(0, -1), Vector2(-1, 0)]
 		directions.shuffle()
 		
-		var placed = false
-		for direction in directions:
-			# Calculate exact room position with fixed corridor distance
-			var source_room = rooms[source_room_idx]
-			var new_room_size = Vector2i(
-				randi_range(min_room_size, max_room_size),
-				randi_range(min_room_size, max_room_size)
-			)
+		for dir in directions:
+			var new_pos = source_pos + dir
 			
-			var corridor_exit = Vector2i(0, 0)
-			var new_room_pos = Vector2i(0, 0)
-			
-			# ADJUSTED: Add extra distance between rooms to prevent wall overlap
-			var extra_spacing = 1  # Add 1 extra tile between rooms
-			
-			if direction.x < 0:  # Left
-				corridor_exit = Vector2i(
-					source_room.position.x - corridor_length - 1 - extra_spacing,
-					source_room.position.y + source_room.size.y / 2
-				)
-				new_room_pos = Vector2i(
-					corridor_exit.x - new_room_size.x,
-					corridor_exit.y - new_room_size.y / 2
-				)
-			elif direction.x > 0:  # Right
-				corridor_exit = Vector2i(
-					source_room.end.x + corridor_length + extra_spacing,
-					source_room.position.y + source_room.size.y / 2
-				)
-				new_room_pos = Vector2i(
-					corridor_exit.x,
-					corridor_exit.y - new_room_size.y / 2
-				)
-			elif direction.y < 0:  # Up
-				corridor_exit = Vector2i(
-					source_room.position.x + source_room.size.x / 2,
-					source_room.position.y - corridor_length - 1 - extra_spacing
-				)
-				new_room_pos = Vector2i(
-					corridor_exit.x - new_room_size.x / 2,
-					corridor_exit.y - new_room_size.y
-				)
-			elif direction.y > 0:  # Down
-				corridor_exit = Vector2i(
-					source_room.position.x + source_room.size.x / 2,
-					source_room.end.y + corridor_length + extra_spacing
-				)
-				new_room_pos = Vector2i(
-					corridor_exit.x - new_room_size.x / 2,
-					corridor_exit.y
-				)
-			
-			# Try to place the new room
-			if place_room(new_room_pos, new_room_size):
-				# Success! Connect rooms with exact corridor
-				var corridor_start = Vector2i(0, 0)
-				
-				if direction.x < 0:  # Left
-					corridor_start = Vector2i(
-						source_room.position.x,  # Start at room edge
-						source_room.position.y + source_room.size.y / 2
-					)
-					create_h_corridor(corridor_exit.x, corridor_start.x, corridor_start.y)
-				elif direction.x > 0:  # Right
-					corridor_start = Vector2i(
-						source_room.end.x - 1,  # Start at room edge
-						source_room.position.y + source_room.size.y / 2
-					)
-					create_h_corridor(corridor_start.x, corridor_exit.x, corridor_start.y)
-				elif direction.y < 0:  # Up
-					corridor_start = Vector2i(
-						source_room.position.x + source_room.size.x / 2,
-						source_room.position.y  # Start at room edge
-					)
-					create_v_corridor(corridor_exit.y, corridor_start.y, corridor_start.x)
-				elif direction.y > 0:  # Down
-					corridor_start = Vector2i(
-						source_room.position.x + source_room.size.x / 2,
-						source_room.end.y - 1  # Start at room edge
-					)
-					create_v_corridor(corridor_start.y, corridor_exit.y, corridor_start.x)
-				
-				# Record the connection
-				var new_room_idx = rooms.size() - 1
-				room_connections[source_room_idx].append(new_room_idx)
-				room_connections[new_room_idx] = [source_room_idx]
-				
-				# Add to creation order
-				room_creation_order.append(rooms[new_room_idx])
-				
-				placed = true
-				break
-				
-		if not placed:
-			attempts += 1
-
-func place_room(pos: Vector2i, size: Vector2i = Vector2i.ZERO) -> bool:
-	# Use provided size or randomize
-	var w = size.x if size.x > 0 else randi_range(min_room_size, max_room_size)
-	var h = size.y if size.y > 0 else randi_range(min_room_size, max_room_size)
+			# Check if position is valid and empty
+			if is_valid_position(new_pos) and room_grid[new_pos.x][new_pos.y] == null:
+				# Random chance to create a room
+				if randf() <= room_chance:
+					current_room_count += 1
+					create_room(new_pos.x, new_pos.y, current_room_count)
+					create_corridor(source_pos, new_pos, source_index, current_room_count)
+					break
 	
-	# Ensure the room fits inside the dungeon bounds with padding
-	if pos.x < 1 or pos.y < 1 or pos.x + w >= dungeon_size.x - 1 or pos.y + h >= dungeon_size.y - 1:
-		return false
+	print("Generated dungeon with ", rooms.size(), " rooms using seed: ", current_seed)
 
-	var new_room = Rect2i(pos.x, pos.y, w, h)
-	
-	# Check if this room overlaps with any existing room
-	for room in rooms:
-		if new_room.intersects(room):
-			return false  # Room overlaps, reject placement
-	
-	# Add this line to ensure room bounds are correct
-	new_room = new_room.abs()  # Ensure positive width/height 
-	
-	rooms.append(new_room)
-	room_creation_order.append(new_room)  # Add to creation order
-	carve_room(new_room)
-	return true
+func is_valid_position(pos):
+	return pos.x >= 0 and pos.x < grid_size.x and pos.y >= 0 and pos.y < grid_size.y
 
-func carve_room(room: Rect2i):
-	for x in range(room.position.x, room.end.x):
-		for y in range(room.position.y, room.end.y):
-			if x >= 0 and x < dungeon_size.x and y >= 0 and y < dungeon_size.y:
-				dungeon[x][y] = FLOOR  # Floor
-
-func create_h_corridor(x1: int, x2: int, y: int):
-	# Calculate half width for vertical spread (rounded down)
-	@warning_ignore("integer_division")
-	var half_width = corridor_width / 2
+func create_room(x, y, index):
+	# Create a new room instance
+	var room_instance = room_scene.instantiate()
+	add_child(room_instance)
 	
-	for x in range(min(x1, x2), max(x1, x2) + 1):
-		# Create the corridor with the specified width
-		for w in range(corridor_width):
-			var corridor_y = y - half_width + w
-			if x >= 0 and x < dungeon_size.x and corridor_y >= 0 and corridor_y < dungeon_size.y:
-				dungeon[x][corridor_y] = FLOOR
-
-func create_v_corridor(y1: int, y2: int, x: int):
-	# Calculate half width for horizontal spread (rounded down)
-	@warning_ignore("integer_division")
-	var half_width = corridor_width / 2
+	room_instance.connect("state_changed", Callable(self, "_on_room_state_changed"))
 	
-	for y in range(min(y1, y2), max(y1, y2) + 1):
-		# Create the corridor with the specified width
-		for w in range(corridor_width):
-			var corridor_x = x - half_width + w
-			if corridor_x >= 0 and corridor_x < dungeon_size.x and y >= 0 and y < dungeon_size.y:
-				dungeon[corridor_x][y] = FLOOR
-
-
-func apply_tiles():
-	# Make sure we have a valid tilemap reference
-	if tilemap == null:
-		print("ERROR: TileMap reference is null!")
-		return
-		
-	# Make sure tilemap has a valid tileset
-	if tilemap.tile_set == null:
-		print("ERROR: TileMap has no TileSet assigned!")
-		return
-		
-	# Clear the existing tilemap
-	tilemap.clear()
+	# Calculate room size in pixels based on tile size
+	var room_pixel_width = room_width_tiles * tile_size
+	var room_pixel_height = room_height_tiles * tile_size
 	
-	# We're using the source_id set in the Inspector
-	if debug_mode:
-		print("Starting to place tiles...")
-		tile_count = 0
+	# Calculate room position with spacing
+	var total_width = room_pixel_width + (tile_size * room_spacing)
+	var total_height = room_pixel_height + (tile_size * room_spacing)
 	
-	for x in range(dungeon_size.x):
-		for y in range(dungeon_size.y):
-			var tile_coords = get_tile_for_position(x, y)
-			
-			# Set the tile with the source ID
-			tilemap.set_cell(layer_id, Vector2i(x, y), source_id, tile_coords)
-			
-			if debug_mode:
-				tile_count += 1
-				if tile_count % 100 == 0:
-					print("Placed ", tile_count, " tiles...")
+	# Configure the room
+	room_instance.position = Vector2(x * total_width, y * total_height)
+	room_instance.name = "Room" + str(index)
 	
-	if debug_mode:
-		print("All tiles placed.")
-		print(rooms)
-
-
-func get_tile_for_position(x: int, y: int) -> Vector2i:
-	if x < 0 or y < 0 or x >= dungeon_size.x or y >= dungeon_size.y:
-		return wall_full
+	# Store room information
+	var room_data = {
+		"instance": room_instance,
+		"grid_pos": Vector2(x, y),
+		"index": index,
+		"pixel_pos": room_instance.position,
+		"pixel_size": Vector2(room_pixel_width, room_pixel_height),
+		"state": room_instance.current_state
+	}
 	
-	if dungeon[x][y] == WALL:
-		# Check directly adjacent floor tiles
-		var is_floor_left = x > 0 and dungeon[x - 1][y] == FLOOR
-		var is_floor_right = x < dungeon_size.x - 1 and dungeon[x + 1][y] == FLOOR
-		var is_floor_up = y > 0 and dungeon[x][y - 1] == FLOOR
-		var is_floor_down = y < dungeon_size.y - 1 and dungeon[x][y + 1] == FLOOR
+	rooms.append(room_data)
+	room_grid[x][y] = index
+	
+	# Setup the room
+	room_instance.setup(Vector2(room_width_tiles, room_height_tiles), tile_size, index, door_width)
+	print(room_data)
 
-		# Count adjacent floors
-		var adjacent_floor_count = 0
-		if is_floor_left: adjacent_floor_count += 1
-		if is_floor_right: adjacent_floor_count += 1
-		if is_floor_up: adjacent_floor_count += 1
-		if is_floor_down: adjacent_floor_count += 1
-		
-		# Check diagonal floor tiles
-		var is_floor_top_left = (x > 0 and y > 0) and dungeon[x - 1][y - 1] == FLOOR
-		var is_floor_top_right = (x < dungeon_size.x - 1 and y > 0) and dungeon[x + 1][y - 1] == FLOOR
-		var is_floor_bottom_left = (x > 0 and y < dungeon_size.y - 1) and dungeon[x - 1][y + 1] == FLOOR
-		var is_floor_bottom_right = (x < dungeon_size.x - 1 and y < dungeon_size.y - 1) and dungeon[x + 1][y + 1] == FLOOR
-		
-		# Internal corners (T-junctions) - when exactly two adjacent sides have floors
-		if adjacent_floor_count == 2:
-			if is_floor_left and is_floor_up:
-				return reverse_corner_top_right
-			if is_floor_right and is_floor_up:
-				return reverse_corner_top_left
-			if is_floor_left and is_floor_down:
-				return wall_bottom
-			if is_floor_right and is_floor_down:
-				return wall_bottom
-		
-		# Standard walls - when exactly one adjacent side has floor
-		if adjacent_floor_count == 1:
-			if is_floor_left:
-				return wall_left
-			if is_floor_right:
-				return wall_right
-			if is_floor_up:
-				return wall_top
-			if is_floor_down:
-				return wall_bottom
-		
-		# External corners - when diagonals have floors but sides don't
-		if is_floor_top_left and !is_floor_left and !is_floor_up:
-			return corner_bottom_right
-		if is_floor_top_right and !is_floor_right and !is_floor_up:
-			return corner_bottom_left
-		if is_floor_bottom_left and !is_floor_left and !is_floor_down:
-			return corner_top_right
-		if is_floor_bottom_right and !is_floor_right and !is_floor_down:
-			return corner_top_left
-		
-		return wall_full  # Default wall
+func create_corridor(from_pos, to_pos, from_index, to_index):
+	# Store the connection information
+	connections.append({
+		"from": from_index,
+		"to": to_index,
+		"from_pos": from_pos,
+		"to_pos": to_pos
+	})
+	
+	# Determine direction
+	var direction = to_pos - from_pos
+	var corridor_dir = Vector2.ZERO
+	
+	# Calculate corridor direction (either horizontal or vertical)
+	if abs(direction.x) > abs(direction.y):
+		corridor_dir = Vector2(sign(direction.x), 0)
 	else:
-		# Return a random floor tile
-		return floor_tiles[randi() % floor_tiles.size()]
+		corridor_dir = Vector2(0, sign(direction.y))
+	
+	# Find the room instances by their index attribute
+	var from_room = null
+	var to_room = null
+	
+	for room in rooms:
+		if room["index"] == from_index:
+			from_room = room
+		if room["index"] == to_index:
+			to_room = room
 		
 		
-# Function to choose a spawn room
-func select_spawn_room(spawn_method: String = "first") -> Vector2i:
-	if room_creation_order.size() == 0:
-		return Vector2i(0, 0)  # Fallback position
+		# Early exit if we found both rooms
+		if from_room != null and to_room != null:
+			break
 	
-	var chosen_room = null
+	# Check if rooms were found
+	if from_room == null or to_room == null:
+		print("Error: Could not find rooms with indices ", from_index, " and ", to_index)
+		return
 	
-	match spawn_method:
-		"first":
-			chosen_room = room_creation_order[0]
-		"last":
-			chosen_room = room_creation_order[-1]
-		"random":
-			chosen_room = room_creation_order[randi() % room_creation_order.size()]
-		"middle":
-			@warning_ignore("integer_division")
-			var middle_index = int(room_creation_order.size() / 2)
-			chosen_room = room_creation_order[middle_index]
-		_:
-			# Default to first room
-			chosen_room = room_creation_order[0]
+	# Tell the rooms to create doorways in appropriate walls
+	from_room["instance"].create_doorway(corridor_dir)
+	to_room["instance"].create_doorway(-corridor_dir)
 	
-	player_spawn_room = chosen_room
-	
-	# Return center position of the room
-	return Vector2i(
-		chosen_room.position.x + chosen_room.size.x / 2,
-		chosen_room.position.y + chosen_room.size.y / 2
-	)
+	# Create visual corridor between rooms
+	create_corridor_instance(from_room, to_room, corridor_dir)
 
-func get_dungeon():
-	return dungeon
+func _on_room_state_changed(room_index, new_state):
+	for room in rooms:
+		if room["index"] == room_index:
+			room["state"] = new_state
+			break
 
-# Add visual debugging option
-func _draw():
-	if debug_mode:
-		for x in range(dungeon_size.x):
-			for y in range(dungeon_size.y):
-				var color = Color.WHITE if dungeon[x][y] == FLOOR else Color.BLACK
-				draw_rect(Rect2(x * 8, y * 8, 7, 7), color)
+func create_corridor_instance(from_room, to_room, direction):
+	var corridor_instance = corridor_scene.instantiate()
+	add_child(corridor_instance)
+	
+	# Get room positions and sizes
+	var from_pos = from_room["pixel_pos"]
+	var to_pos = to_room["pixel_pos"]
+	var from_size = from_room["pixel_size"]
+	var to_size = to_room["pixel_size"]
+	
+	var corridor_position = Vector2.ZERO
+	var corridor_length = 0
+	
+	if direction.x != 0:  # Horizontal corridor
+		# Calculate Y position (centered on the room's height)
+		@warning_ignore("integer_division")
+		var corridor_y = from_pos.y + (from_size.y / 2) - ((door_width * tile_size) / 2)
+		
+		if direction.x > 0:  # Right direction
+			# Position at the right edge of the left room, but back 1 tile to overlap
+			corridor_position.x = from_pos.x + from_size.x - tile_size
+			corridor_position.y = corridor_y
+			# Length is the gap between rooms plus 2 tiles for overlap
+			corridor_length = (to_pos.x - (from_pos.x + from_size.x)) + (2 * tile_size)
+		else:  # Left direction
+			# Position at the left edge of the right room, but back 1 tile to overlap
+			corridor_position.x = to_pos.x + to_size.x - tile_size
+			corridor_position.y = corridor_y
+			# Length is the gap between rooms plus 2 tiles for overlap
+			corridor_length = (from_pos.x - (to_pos.x + to_size.x)) + (2 * tile_size)
+	else:  # Vertical corridor
+		# Calculate X position (centered on the room's width)
+		@warning_ignore("integer_division")
+		var corridor_x = from_pos.x + (from_size.x / 2) - ((door_width * tile_size) / 2)
+		
+		if direction.y > 0:  # Down direction
+			# Position at the bottom edge of the top room, but back 1 tile to overlap
+			corridor_position.x = corridor_x
+			corridor_position.y = from_pos.y + from_size.y - tile_size
+			# Length is the gap between rooms plus 2 tiles for overlap
+			corridor_length = (to_pos.y - (from_pos.y + from_size.y)) + (2 * tile_size)
+		else:  # Up direction
+			# Position at the top edge of the bottom room, but back 1 tile to overlap
+			corridor_position.x = corridor_x
+			corridor_position.y = to_pos.y + to_size.y - tile_size
+			# Length is the gap between rooms plus 2 tiles for overlap
+			corridor_length = (from_pos.y - (to_pos.y + to_size.y)) + (2 * tile_size)
+	
+	# Convert pixel length to tile length and ensure minimum length
+	var corridor_length_tiles = max(1, int(corridor_length / tile_size))
+	
+	# Set the corridor's position
+	corridor_instance.position = corridor_position
+	
+	# Setup the corridor
+	corridor_instance.setup(corridor_length_tiles, door_width, tile_size, direction, corridors.size())
+	
+	# Add to corridors array
+	corridors.append(corridor_instance)
+	
+# Add this method to your DungeonGenerator script to provide access to the grid data
+func get_room_grid():
+	return room_grid
+
+func get_room_at_grid_position(grid_pos):
+	if grid_pos.x >= 0 and grid_pos.x < grid_size.x and grid_pos.y >= 0 and grid_pos.y < grid_size.y:
+		var room_index = room_grid[grid_pos.x][grid_pos.y]
+		if room_index != null:
+			# Find and return the room data
+			for room in rooms:
+				if room["index"] == room_index:
+					return room
+	return null
+
 

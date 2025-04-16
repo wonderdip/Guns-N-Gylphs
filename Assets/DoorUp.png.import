@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c76v34g1g7avj"
-path="res://.godot/imported/RNG Dungeon tileset.png-e41a3f82a66f0dee1e3130c287b76547.ctex"
+uid="uid://bgrkfeq5k4tch"
+path="res://.godot/imported/DoorUp.png-552c42c56a1b9cf187851d8c01cd4f9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/RNG Dungeon tileset.png"
-dest_files=["res://.godot/imported/RNG Dungeon tileset.png-e41a3f82a66f0dee1e3130c287b76547.ctex"]
+source_file="res://Assets/DoorUp.png"
+dest_files=["res://.godot/imported/DoorUp.png-552c42c56a1b9cf187851d8c01cd4f9e.ctex"]
 
 [params]
 
