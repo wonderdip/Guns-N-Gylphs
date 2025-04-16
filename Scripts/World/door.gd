@@ -6,7 +6,7 @@ extends Node2D
 @export var cleared_door_color: Color = Color(0.5, 1, 0.5)  # Greenish
 
 # Door components
-@onready var horizontal_sprite = $HorizontalDoor
+@onready var horizontal_sprite: AnimatedSprite2D = $HorizontalDoor
 @onready var vertical_sprite = $VerticalDoor
 @onready var collision_shape = $StaticBody2D/CollisionShape2D
 
@@ -45,10 +45,15 @@ func setup(direction, parent_room):
 		horizontal_sprite.visible = true
 		vertical_sprite.visible = false
 		
-		# Adjust collision shape for horizontal door
+		var frames: SpriteFrames = horizontal_sprite.sprite_frames
+		var current_animation: String = horizontal_sprite.animation
+		var current_frame: int = horizontal_sprite.frame
+
+		var texture: Texture2D = frames.get_frame_texture(current_animation, current_frame)
 		var rect_shape = RectangleShape2D.new()
-		rect_shape.size = Vector2(horizontal_sprite.texture.get_width(), horizontal_sprite.texture.get_height())
+		rect_shape.size = texture.get_size()
 		collision_shape.shape = rect_shape
+	
 	
 	# Connect to room state change signal
 	if current_room and current_room.has_signal("state_changed"):
@@ -65,6 +70,7 @@ func _process(_delta):
 		var room_state = current_room.current_state
 		if door_state != room_state:
 			update_door_state(room_state)
+
 
 # Update door state based on room state
 func update_door_state(new_state):
@@ -94,3 +100,14 @@ func update_door_appearance(state):
 func _on_room_state_changed(room_index, new_state):
 	if current_room and current_room.room_index == room_index:
 		update_door_state(new_state)
+
+
+func _on_area_2d_body_entered(body):
+	if body.is_in_group("Player"):
+		if door_state == 1 or door_state == 2:
+			horizontal_sprite.play("Open")
+
+func _on_area_2d_body_exited(body):
+	if body.is_in_group("Player"):
+		if door_state == 1 or door_state == 2:
+			horizontal_sprite.play_backwards("Open")

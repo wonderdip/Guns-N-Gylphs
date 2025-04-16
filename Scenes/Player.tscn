@@ -434,6 +434,7 @@ position = Vector2(0, 5)
 shape = SubResource("CapsuleShape2D_2mlfq")
 
 [node name="BodySprite" type="AnimatedSprite2D" parent="."]
+y_sort_enabled = true
 material = SubResource("ShaderMaterial_il4xp")
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_mgvyj")

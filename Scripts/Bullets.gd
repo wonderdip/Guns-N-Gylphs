@@ -31,15 +31,18 @@ func _physics_process(delta):
 	area.global_position = global_position
 	area.global_rotation = global_rotation
 	travelled_distance += Speed * delta
+	
 	if travelled_distance > max_distance:
 		queue_free()
-
 
 func _on_area_2d_body_entered(body):
 	if body is Enemy:
 		body.take_damage(damage)
 		queue_free()
-	if body is TileMap:
+		
+	elif body is TileMap:
 		queue_free()
-
+		
+	elif body.collision_layer & (1 << 2): # Layer 3 is the 3rd bit, which is 1 << 2
+		queue_free()
 

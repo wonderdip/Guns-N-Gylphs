@@ -33,6 +33,7 @@ var dodge_facing_left: bool = false
 var mouse_pos: Vector2
 
 func _ready():
+	add_to_group("Player")
 	current_gun_parent = get_node("CurrentGun")
 	current_gun = current_gun_parent.get_children()
 	current_gun_sprite = current_gun_parent.get_child(0)
