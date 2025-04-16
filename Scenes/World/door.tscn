@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bnsk20knm106r"]
 
-[ext_resource type="Script" path="res://Scripts/door.gd" id="1_ur3mk"]
+[ext_resource type="Script" path="res://Scripts/World/door.gd" id="1_ur3mk"]
 [ext_resource type="Texture2D" uid="uid://bgrkfeq5k4tch" path="res://Assets/DoorUp.png" id="2_i0mlu"]
 [ext_resource type="Texture2D" uid="uid://cb0c3nrc31tw8" path="res://Assets/DoorSide.png" id="3_mynva"]
 

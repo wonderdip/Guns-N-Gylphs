@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://bd74oxxoi3new"]
 
 [ext_resource type="Script" path="res://Scripts/Guns/pistol.gd" id="1_60812"]
-[ext_resource type="PackedScene" uid="uid://dcb07uhdlqysu" path="res://Scenes/bullets.tscn" id="2_u5doi"]
+[ext_resource type="PackedScene" uid="uid://dcb07uhdlqysu" path="res://Scenes/Guns/Bullets/bullets.tscn" id="2_vr1hb"]
 [ext_resource type="Texture2D" uid="uid://ds2o4rnwpt0ad" path="res://Assets/Guns/Guns.png" id="3_xpybe"]
 
 [sub_resource type="Curve" id="Curve_tce1w"]
@@ -17,7 +17,7 @@ colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.858824, 1, 1, 1, 0)
 position = Vector2(-1, 0)
 scale = Vector2(4, 4)
 script = ExtResource("1_60812")
-bullet = ExtResource("2_u5doi")
+bullet = ExtResource("2_vr1hb")
 damage = 10
 magazine_size = 8
 bullet_count = 1

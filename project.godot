@@ -17,9 +17,9 @@ config/icon="res://Assets/Characters/Archeologist.png"
 
 [autoload]
 
-FreezeFrameManager="*res://Scripts/freeze_frame_manager.gd"
-CameraShakeManager="*res://Scripts/camera_shake_manager.gd"
-PlayerPositionManager="*res://Scripts/player_position_manager.gd"
+FreezeFrameManager="*res://Scripts/Autoloads/freeze_frame_manager.gd"
+CameraShakeManager="*res://Scripts/Autoloads/camera_shake_manager.gd"
+PlayerPositionManager="*res://Scripts/Autoloads/player_position_manager.gd"
 
 [display]
 
