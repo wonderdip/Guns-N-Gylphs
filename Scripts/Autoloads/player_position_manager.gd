@@ -35,6 +35,7 @@ func _process(_delta):
 	if player != null:
 		update_player_room_position()
 
+
 func _on_dungeon_ready():
 	print("PlayerPositionManager: Dungeon ready signal received")
 	spawn_player_in_first_room()
@@ -86,6 +87,7 @@ func update_player_room_position():
 				# Emit signal about room change
 				emit_signal("player_room_changed", old_room_index, current_room_index)
 				print("PlayerPositionManager: Player moved to room ", current_room_index)
+				
 			
 			# Room found, no need to check others
 			return
