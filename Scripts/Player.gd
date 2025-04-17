@@ -73,7 +73,7 @@ func _physics_process(delta):
 	sprite_facing()
 	
 	# Enemy collision detection
-	check_enemy_collisions(delta)
+	check_enemy_collisions()
 	
 	#visibility handling
 	hand_visibility()
@@ -133,17 +133,17 @@ func sprite_facing():
 		right_hand_sprite.flip_h = face_left
 
 
-func check_enemy_collisions(delta):
+func check_enemy_collisions():
 	var overlapping_enemies: Array = %HurtBox.get_overlapping_bodies()
 	if overlapping_enemies.size() > 0:
 		for enemy in overlapping_enemies:
 			# Assuming each Enemy has a `damage` property
 			if enemy is Enemy:
-				Health -= enemy.Damage * delta
+				Health -= enemy.Damage
+				print(Health)
 				took_damage()
 				
-		if Health < 0:
-			death()
+
 
 func hand_visibility():
 	
@@ -178,6 +178,9 @@ func took_damage():
 	invincibility(1.0)
 	FreezeFrameManager.framefreeze(0.4, 0)
 	hit_flash()
+	
+	if Health <= 0:
+		death()
 
 func invincibility(duration: float):
 	var player_original_layer: int = player.collision_layer
