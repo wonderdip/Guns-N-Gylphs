@@ -74,14 +74,18 @@ func _process(_delta):
 
 # Update door state based on room state
 func update_door_state(new_state):
+	# Correct way to use call_deferred - method name as string, then arguments
+	call_deferred("_deferred_update_door_state", new_state)
+	
+func _deferred_update_door_state(new_state):
 	door_state = new_state
 	update_door_appearance(new_state)
-	
 	# Enable/disable collision based on state
 	if new_state == 0:  # Locked
 		collision_shape.disabled = false
 	else:  # Unlocked or cleared
 		collision_shape.disabled = true
+
 
 # Update the door's visual appearance based on state
 func update_door_appearance(state):
@@ -101,6 +105,17 @@ func _on_room_state_changed(room_index, new_state):
 	if current_room and current_room.room_index == room_index:
 		update_door_state(new_state)
 
+func lock():
+	# Force door to locked state regardless of room state
+	door_state = 0  # Locked
+	update_door_appearance(door_state)
+	collision_shape.disabled = false
+
+func unlock():
+	# Force door to unlocked state regardless of room state
+	door_state = 1  # Unlocked
+	update_door_appearance(door_state)
+	collision_shape.disabled = true
 
 func _on_area_2d_body_entered(body):
 	if body.is_in_group("Player"):
