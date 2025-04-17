@@ -1,11 +1,15 @@
 extends Node2D
 
+signal enemies_defeated
+
 # Room components
 @onready var tilemap = $TileMap
 @onready var area = $Area2D
 @onready var collision_shape = $Area2D/CollisionShape2D
 
 @export var door: PackedScene
+@export var enemies: Array[PackedScene] = []
+@export var enemies_per_room: int
 
 # Room states
 enum RoomState {LOCKED, UNLOCKED, CLEARED}
@@ -16,6 +20,9 @@ var room_size_tiles = Vector2(0, 0)  # Size in tiles, not pixels
 var tile_size = 16  # Size of a single tile in pixels
 var room_index = 0
 var door_width = 3  # Door width in tiles (odd number recommended for symmetry)
+var enemies_remaining = 0
+var enemies_spawned := false
+
 
 var FLOOR_TILES = [
 	Vector2(4, 0),
@@ -99,7 +106,7 @@ func setup(size_in_tiles, single_tile_size, index, door_width_tiles=3):
 	# Size the area2D to match the room
 	var shape = RectangleShape2D.new()
 	var room_pixel_size = Vector2(room_size_tiles.x * tile_size, room_size_tiles.y * tile_size)
-	shape.size = room_pixel_size  # Slightly smaller than the room
+	shape.size = room_pixel_size*0.8  # Slightly smaller than the room
 	collision_shape.shape = shape
 	collision_shape.position = room_pixel_size * 0.5  # Center the collision shape
 	
@@ -267,6 +274,64 @@ func set_state(new_state):
 	if old_state != new_state:
 		emit_signal("state_changed", room_index, new_state)
 
+# Add this to Room.gd
+
+# Called when a room should be locked for combat
+func lock_for_combat():
+	# Set the state first (this doesn't directly affect physics)
+	set_state(RoomState.LOCKED)
+	
+	# Then defer the door locking
+	call_deferred("_deferred_lock_doors")
+	call_deferred("on_player_entered_room")
+
+func on_player_entered_room():
+	if enemies_spawned:
+		return  # Already spawned, don't spawn again
+	
+	spawn_enemies()
+	enemies_spawned = true
+
+func _deferred_lock_doors():
+	# Close all doors
+	for child in get_children():
+		if child.name.ends_with("Door") and child.has_method("lock"):
+			child.lock()
+
+func spawn_enemies():
+	for i in enemies_per_room:
+		var enemy_scene = enemies.pick_random()
+		if enemy_scene:
+			call_deferred("_spawn_single_enemy", enemy_scene)
+	
+	# Add a counter to track defeated enemies
+	enemies_remaining = enemies_per_room
+
+func _spawn_single_enemy(enemy_scene):
+	var enemy_instance = enemy_scene.instantiate()
+	add_child(enemy_instance)
+	
+	# Position the enemy randomly within the room
+	var x = randf_range(tile_size * 2, room_size_tiles.x * tile_size - tile_size * 2)
+	var y = randf_range(tile_size * 2, room_size_tiles.y * tile_size - tile_size * 2)
+	enemy_instance.position = Vector2(x, y)
+	
+	# Optionally connect to a signal to detect when it's defeated
+	if enemy_instance.has_signal("defeated"):
+		enemy_instance.connect("defeated", Callable(self, "_on_enemy_defeated"))
+
+func _on_enemy_defeated():
+	enemies_remaining -= 1
+	print(enemies_remaining)
+	if enemies_remaining <= 0:
+		all_enemies_defeated()
+		
+
+# Function to handle when all enemies are defeated
+func all_enemies_defeated():
+	# Set room to cleared state
+	set_state(RoomState.CLEARED)
+
 # Check if room is locked
 func is_locked():
 	return current_state == RoomState.LOCKED
@@ -274,10 +339,10 @@ func is_locked():
 # Check if room is cleared
 func is_cleared():
 	return current_state == RoomState.CLEARED
-	
+
 # Called when player enters the room
 func _on_area_2d_body_entered(body):
-	if body.has_method("is_player") and body.is_player():
-		if current_state == RoomState.UNLOCKED:
-			# TODO: Trigger enemies to spawn here
-			pass
+	if body.is_in_group("Player"):
+		if current_state != RoomState.CLEARED:
+			await get_tree().create_timer(0.1).timeout
+			call_deferred("lock_for_combat")

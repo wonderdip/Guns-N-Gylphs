@@ -1,12 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://f0nff436cfba"]
+[gd_scene load_steps=5 format=3 uid="uid://f0nff436cfba"]
 
 [ext_resource type="Script" path="res://Scripts/World/Room.gd" id="1_fhuh3"]
 [ext_resource type="TileSet" uid="uid://ciskxo1sn8ydu" path="res://Assets/WorldTileSet.tres" id="2_8gp3k"]
 [ext_resource type="PackedScene" uid="uid://bnsk20knm106r" path="res://Scenes/World/door.tscn" id="2_bdfo6"]
+[ext_resource type="PackedScene" uid="uid://dwva6dkjc4mhv" path="res://Scenes/Enemies/Mummy.tscn" id="3_s72j1"]
 
-[node name="Room" type="Node2D"]
+[node name="BasicRoom" type="Node2D"]
 script = ExtResource("1_fhuh3")
 door = ExtResource("2_bdfo6")
+enemies = Array[PackedScene]([ExtResource("3_s72j1")])
+enemies_per_room = 4
 
 [node name="TileMap" type="TileMap" parent="."]
 scale = Vector2(4, 4)
@@ -16,3 +19,5 @@ format = 2
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
