@@ -1,7 +1,6 @@
-[gd_scene load_steps=16 format=3 uid="uid://dwva6dkjc4mhv"]
+[gd_scene load_steps=15 format=3 uid="uid://dwva6dkjc4mhv"]
 
 [ext_resource type="Script" path="res://Scripts/Enemies/mummy.gd" id="1_div5c"]
-[ext_resource type="PackedScene" uid="uid://dekfi127ulci4" path="res://Scenes/Player.tscn" id="2_qnom3"]
 [ext_resource type="Texture2D" uid="uid://cgfdp2uaodkjw" path="res://Assets/Enemies/Mummy - Walk-Sheet.png" id="2_v4amn"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ubkvo"]
@@ -87,6 +86,7 @@ offsets = PackedFloat32Array(0, 0.553333, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.858824, 1, 1, 1, 0)
 
 [node name="Mummy" type="CharacterBody2D"]
+z_index = 1
 collision_layer = 2
 collision_mask = 7
 motion_mode = 1
@@ -94,7 +94,6 @@ script = ExtResource("1_div5c")
 Health = 20.0
 Damage = 1
 Speed = 150
-player = ExtResource("2_qnom3")
 knockback_strength = 200.0
 knockback_duration = 0.1
 

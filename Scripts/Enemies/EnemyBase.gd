@@ -1,11 +1,12 @@
 extends CharacterBody2D
 class_name Enemy
 
+signal defeated
+
 @export var Health: float = 0
 @export var Damage: int = 0
 @export var Speed: int = 0
 
-@export var player: PackedScene
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cpu_particles_2d = $CPUParticles2D
@@ -16,12 +17,13 @@ class_name Enemy
 @export var knockback_duration: float = 0  # Duration of the knockback effect
 var knockback_timer: float = 0  # Timer to track knockback duration
 var knockback_direction: Vector2 = Vector2.ZERO  # Direction of knockback
-
+var player: CharacterBody2D
 var camera2d: Camera2D
 var cameraShakeNoise: FastNoiseLite
 
 func _ready():
 	add_to_group("enemies")
+	player = get_tree().get_nodes_in_group("Player")[0]
 	camera2d = player.get_node("DynamicCamera")
 	cameraShakeNoise = FastNoiseLite.new()
 
@@ -62,12 +64,11 @@ func apply_knockback(source_position: Vector2):
 	knockback_timer = knockback_duration  # Set the knockback duration
 	velocity = knockback_direction * knockback_strength  # Apply the knockback velocity
 
-
-
 func die():
 	cpu_particles_2d.restart()
 	damaged()
 	animated_sprite.stop()
+	emit_signal("defeated")
 	await get_tree().create_timer(0.3, true, false, true).timeout
 	queue_free()
 
