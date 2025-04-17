@@ -110,6 +110,8 @@ func lock():
 	door_state = 0  # Locked
 	update_door_appearance(door_state)
 	collision_shape.disabled = false
+	horizontal_sprite.play_backwards("Open")
+
 
 func unlock():
 	# Force door to unlocked state regardless of room state

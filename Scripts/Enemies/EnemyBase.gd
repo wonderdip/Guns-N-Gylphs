@@ -68,7 +68,7 @@ func die():
 	cpu_particles_2d.restart()
 	damaged()
 	animated_sprite.stop()
-	emit_signal("defeated")
 	await get_tree().create_timer(0.3, true, false, true).timeout
+	emit_signal("defeated")
 	queue_free()
 

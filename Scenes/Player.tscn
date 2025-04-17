@@ -470,5 +470,6 @@ libraries = {
 [node name="PlayerLight" type="PointLight2D" parent="."]
 color = Color(0.752941, 0.270588, 0.231373, 1)
 energy = 0.5
+shadow_enabled = true
 texture = ExtResource("12_moxu8")
 texture_scale = 4.35
