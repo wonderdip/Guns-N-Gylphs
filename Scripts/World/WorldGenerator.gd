@@ -120,6 +120,7 @@ func generate_dungeon():
 					break
 	
 	print("Generated dungeon with ", rooms.size(), " rooms using seed: ", current_seed)
+	unlock_rooms_connected_to(1)
 
 func is_valid_position(pos):
 	return pos.x >= 0 and pos.x < grid_size.x and pos.y >= 0 and pos.y < grid_size.y
@@ -210,6 +211,9 @@ func _on_room_state_changed(room_index, new_state):
 	for room in rooms:
 		if room["index"] == room_index:
 			room["state"] = new_state
+			# Use the actual room instance to access the enum
+			if new_state == room["instance"].RoomState.CLEARED:
+				unlock_rooms_connected_to(room_index)
 			break
 
 func create_corridor_instance(from_room, to_room, direction):
@@ -271,8 +275,27 @@ func create_corridor_instance(from_room, to_room, direction):
 	
 	# Add to corridors array
 	corridors.append(corridor_instance)
-	
-# Add this method to your DungeonGenerator script to provide access to the grid data
+
+func unlock_rooms_connected_to(index):
+	for connection in connections:
+		if connection["from"] == index:
+			unlock_room_by_index(connection["to"])
+		elif connection["to"] == index:
+			unlock_room_by_index(connection["from"])
+
+
+# Helper function to unlock a room by its index
+func unlock_room_by_index(index):
+	for room in rooms:
+		if room["index"] == index:
+			# Set room state to unlocked
+			if room["instance"] != null and is_instance_valid(room["instance"]):
+				if room["instance"].current_state == room["instance"].RoomState.LOCKED:
+					room["instance"].set_state(room["instance"].RoomState.UNLOCKED)
+					print("Unlocked room with index: ", index)
+			break
+
+
 func get_room_grid():
 	return room_grid
 
