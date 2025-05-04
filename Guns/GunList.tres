@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="GunList" load_steps=2 format=3 uid="uid://bhfqpwxepkngo"]
+[gd_resource type="Resource" script_class="GunList" load_steps=3 format=3 uid="uid://bhfqpwxepkngo"]
 
+[ext_resource type="Resource" uid="uid://b8jc2g6ypenha" path="res://Guns/Pistol/Pistol_resource.tres" id="1_gbgh3"]
 [ext_resource type="Script" path="res://Guns/GunList.gd" id="1_ipido"]
 
 [resource]
 script = ExtResource("1_ipido")
-guns = Array[Resource("res://Guns/GunResource.gd")]([])
+guns = Array[Resource("res://Guns/GunResource.gd")]([ExtResource("1_gbgh3")])

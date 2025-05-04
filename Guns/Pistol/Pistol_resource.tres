@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="GunResource" load_steps=3 format=3 uid="uid://b8jc2g6ypenha"]
+[gd_resource type="Resource" script_class="GunResource" load_steps=4 format=3 uid="uid://b8jc2g6ypenha"]
 
+[ext_resource type="PackedScene" uid="uid://dcb07uhdlqysu" path="res://Guns/Pistol/Pistol_Bullet.tscn" id="1_76qya"]
 [ext_resource type="PackedScene" uid="uid://bd74oxxoi3new" path="res://Guns/Pistol/Pistol.tscn" id="2_7g7fl"]
 [ext_resource type="Script" path="res://Guns/GunResource.gd" id="3_57wuy"]
 
@@ -14,5 +15,6 @@ reload_time = 1.0
 hold_type = 1
 shot_radius = 0.0
 shot_delay = 0.2
+bullet = ExtResource("1_76qya")
 description = "A basic gun"
 unlocked = true
