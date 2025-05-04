@@ -8,8 +8,11 @@ signal enemies_defeated
 @onready var collision_shape = $Area2D/CollisionShape2D
 
 @export var door: PackedScene
-@export var enemies: Array[PackedScene] = []
+@export var tile_definitions: TileDefinitions
 @export var enemies_per_room: int
+@export var enemies: Array[PackedScene] = []
+
+
 
 # Room states
 enum RoomState {LOCKED, UNLOCKED, CLEARED}
@@ -22,64 +25,6 @@ var room_index = 0
 var door_width = 3  # Door width in tiles (odd number recommended for symmetry)
 var enemies_remaining = 0
 var enemies_spawned := false
-
-
-var FLOOR_TILES = [
-	Vector2(4, 0),
-	Vector2(5, 0),
-	Vector2(6, 0),
-	Vector2(7, 0),
-	Vector2(8, 0),
-	Vector2(9, 0),
-	Vector2(4, 1),
-	Vector2(5, 1),
-	Vector2(6, 1),
-	Vector2(7, 1),
-	Vector2(8, 1),
-	Vector2(9, 1),
-]
-
-var WALL_TOP_TILES = [
-	Vector2(0, 0),
-	Vector2(1, 0),
-	Vector2(2, 0),
-	Vector2(3, 0),
-]
-
-var WALL_BOTTOM_TILES = [
-	Vector2(0, 1),
-	Vector2(1, 1),
-	Vector2(2, 1),
-	Vector2(3, 1)
-]
-
-var WALL_RIGHT_TILES = [
-	Vector2(1, 2),
-	Vector2(1, 3),
-	Vector2(1, 4)
-]
-
-var WALL_LEFT_TILES = [
-	Vector2(0, 2),
-	Vector2(0, 3),
-	Vector2(0, 4)
-]
-
-var CORNER_TOP_LEFT_TILES = [
-	Vector2(6, 2)
-]
-
-var CORNER_TOP_RIGHT_TILES = [
-	Vector2(7, 2)
-]
-
-var CORNER_BOTTOM_RIGHT_TILES = [
-	Vector2(9, 2)
-]
-
-var CORNER_BOTTOM_LEFT_TILES = [
-	Vector2(8, 2)
-]
 
 # Door positions
 var doors = {
@@ -95,7 +40,10 @@ var connected_rooms = []
 # Signal for state changes
 signal state_changed(room_index, new_state)
 
-# Add this to your Room.gd script's setup method after generate_layout()
+func _ready():
+	# Load tile definitions if not assigned
+	if not tile_definitions:
+		tile_definitions = load("res://resources/tile_definitions.tres")
 
 func setup(size_in_tiles, single_tile_size, index, door_width_tiles=3):
 	room_size_tiles = size_in_tiles
@@ -114,14 +62,13 @@ func setup(size_in_tiles, single_tile_size, index, door_width_tiles=3):
 	# First room is always unlocked
 	if index == 1:
 		set_state(RoomState.CLEARED)
-
 	else:
 		set_state(RoomState.LOCKED)
 
 	# Generate the room layout
 	generate_layout()
 	
-	# Spawn doors at each doorway (new code)
+	# Spawn doors at each doorway
 	if doors["north"]:
 		spawn_door(Vector2(0, -1))
 	if doors["east"]:
@@ -146,8 +93,8 @@ func generate_layout():
 	# Draw the floor
 	for x in range(1, 1 + inner_width):
 		for y in range(1, 1 + inner_height):
-			# Pick a random floor tile from the array
-			var random_floor = FLOOR_TILES[randi() % FLOOR_TILES.size()]
+			# Use the tile_definitions resource for random floor tiles
+			var random_floor = tile_definitions.get_random_floor_tile()
 			tilemap.set_cell(0, Vector2i(x, y), 0, Vector2i(random_floor))
 	
 	# Calculate door positions and sizes
@@ -163,40 +110,38 @@ func generate_layout():
 	for x in range(1, 1 + inner_width):
 		var is_door = doors["north"] and x >= north_door_start and x < north_door_start + door_width
 		if not is_door:
-			var random_top = WALL_TOP_TILES[randi() % WALL_TOP_TILES.size()]
+			var random_top = tile_definitions.get_random_wall_tile("top")
 			tilemap.set_cell(0, Vector2i(x, 0), 0, Vector2i(random_top))
 	
 	# Right wall
 	for y in range(1, 1 + inner_height):
 		var is_door = doors["east"] and y >= east_door_start and y < east_door_start + door_width
 		if not is_door:
-			var random_right = WALL_RIGHT_TILES[randi() % WALL_RIGHT_TILES.size()]
+			var random_right = tile_definitions.get_random_wall_tile("right")
 			tilemap.set_cell(0, Vector2i(1 + inner_width, y), 0, Vector2i(random_right))
 	
 	# Bottom wall
 	for x in range(1, 1 + inner_width):
 		var is_door = doors["south"] and x >= south_door_start and x < south_door_start + door_width
 		if not is_door:
-			var random_bottom = WALL_BOTTOM_TILES[randi() % WALL_BOTTOM_TILES.size()]
+			var random_bottom = tile_definitions.get_random_wall_tile("bottom")
 			tilemap.set_cell(0, Vector2i(x, 1 + inner_height), 0, Vector2i(random_bottom))
 	
 	# Left wall
 	for y in range(1, 1 + inner_height):
 		var is_door = doors["west"] and y >= west_door_start and y < west_door_start + door_width
 		if not is_door:
-			var random_left = WALL_LEFT_TILES[randi() % WALL_LEFT_TILES.size()]
+			var random_left = tile_definitions.get_random_wall_tile("left")
 			tilemap.set_cell(0, Vector2i(0, y), 0, Vector2i(random_left))
 	
 	# Draw corners
-	tilemap.set_cell(0, Vector2i(0, 0), 0, Vector2i(CORNER_TOP_LEFT_TILES[0]))
-	tilemap.set_cell(0, Vector2i(1 + inner_width, 0), 0, Vector2i(CORNER_TOP_RIGHT_TILES[0]))
-	tilemap.set_cell(0, Vector2i(1 + inner_width, 1 + inner_height), 0, Vector2i(CORNER_BOTTOM_RIGHT_TILES[0]))
-	tilemap.set_cell(0, Vector2i(0, 1 + inner_height), 0, Vector2i(CORNER_BOTTOM_LEFT_TILES[0]))
+	tilemap.set_cell(0, Vector2i(0, 0), 0, Vector2i(tile_definitions.CORNER_TOP_LEFT))
+	tilemap.set_cell(0, Vector2i(1 + inner_width, 0), 0, Vector2i(tile_definitions.CORNER_TOP_RIGHT))
+	tilemap.set_cell(0, Vector2i(1 + inner_width, 1 + inner_height), 0, Vector2i(tile_definitions.CORNER_BOTTOM_RIGHT))
+	tilemap.set_cell(0, Vector2i(0, 1 + inner_height), 0, Vector2i(tile_definitions.CORNER_BOTTOM_LEFT))
 
 # Create a doorway based on direction
-# Modify your create_doorway function to include door spawning
 func create_doorway(direction):
-	
 	if direction.x > 0:  # Going east
 		doors["east"] = true
 	elif direction.x < 0:  # Going west
@@ -211,8 +156,6 @@ func create_doorway(direction):
 	
 	# Spawn a door at this doorway
 	spawn_door(direction)
-
-# Add this to your Room.gd script after the create_doorway function
 
 # Spawn a door at the specified direction
 func spawn_door(direction):
@@ -274,8 +217,6 @@ func set_state(new_state):
 	if old_state != new_state:
 		emit_signal("state_changed", room_index, new_state)
 
-# Add this to Room.gd
-
 # Called when a room should be locked for combat
 func lock_for_combat():
 	# Set the state first (this doesn't directly affect physics)
@@ -326,7 +267,6 @@ func _on_enemy_defeated():
 	if enemies_remaining <= 0:
 		all_enemies_defeated()
 		
-
 # Function to handle when all enemies are defeated
 func all_enemies_defeated():
 	# Set room to cleared state

@@ -29,23 +29,6 @@ corridor_scene = ExtResource("3_4v85p")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_uxa28")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-layer = -30
-
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -656.0
-offset_top = -399.5
-offset_right = 656.0
-offset_bottom = 399.5
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.352941, 0.211765, 0.0941176, 1)
-
 [node name="HUD" parent="." instance=ExtResource("5_5n7lx")]
 
 [node name="Crosshair" parent="." instance=ExtResource("6_b2s4i")]
@@ -57,3 +40,18 @@ color = Color(0.203922, 0.388235, 0.529412, 1)
 [node name="EnemySpawner" type="Node2D" parent="."]
 
 [node name="Player" parent="." instance=ExtResource("3_j1551")]
+
+[node name="BG" type="ColorRect" parent="Player"]
+z_index = -1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -644.0
+offset_top = -389.0
+offset_right = 668.0
+offset_bottom = 410.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.352941, 0.211765, 0.0941176, 1)
