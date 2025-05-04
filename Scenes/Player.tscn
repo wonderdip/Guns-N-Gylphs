@@ -1,17 +1,18 @@
-[gd_scene load_steps=65 format=3 uid="uid://dekfi127ulci4"]
+[gd_scene load_steps=66 format=3 uid="uid://dekfi127ulci4"]
 
 [ext_resource type="Script" path="res://Scripts/Player.gd" id="1_sa2fe"]
 [ext_resource type="Shader" uid="uid://4spx5o2wdnxh" path="res://Shaders/hit_flash.tres" id="2_5ea5e"]
 [ext_resource type="Texture2D" uid="uid://crjbyfapojsov" path="res://Assets/Characters/Archeologist nohands- Idle-Sheet.png" id="2_v2d1j"]
+[ext_resource type="Resource" uid="uid://bhfqpwxepkngo" path="res://Resources/GunList.tres" id="2_yojcs"]
 [ext_resource type="Texture2D" uid="uid://yh3l6o45rn36" path="res://Assets/Characters/Archeologist - Dodge Roll.png" id="3_7dlpc"]
 [ext_resource type="Texture2D" uid="uid://ldmllljyxup0" path="res://Assets/Characters/Archeologist - Walk-Sheet.png" id="3_ljlli"]
 [ext_resource type="Texture2D" uid="uid://bsnjnjsnhf8t1" path="res://Assets/Characters/Hands/Hands - Idle-Sheet.png" id="4_0rcak"]
 [ext_resource type="Texture2D" uid="uid://ccn3a55lkipmh" path="res://Assets/Characters/Hands/Hands2 - Idle-Sheet.png" id="4_glct2"]
-[ext_resource type="PackedScene" uid="uid://bd74oxxoi3new" path="res://Scenes/Guns/Pistol.tscn" id="4_nyc7w"]
 [ext_resource type="Texture2D" uid="uid://djlurups8mj5l" path="res://Assets/Characters/Hands/Hands2 - Walk-Sheet.png" id="5_35fxj"]
 [ext_resource type="Texture2D" uid="uid://b64yc17nmxr8f" path="res://Assets/Characters/Hands/Hands - Walk-Sheet.png" id="5_av4q2"]
 [ext_resource type="Script" path="res://Scripts/dynamic_cam.gd" id="10_sjgxa"]
 [ext_resource type="Texture2D" uid="uid://b1tlgbjsth3kq" path="res://Assets/light texture.png" id="12_moxu8"]
+[ext_resource type="Script" path="res://Scripts/Autoloads/Gun_Manager.gd" id="13_r2r1l"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tq7eg"]
 radius = 24.0
@@ -416,6 +417,7 @@ platform_floor_layers = 4294967040
 script = ExtResource("1_sa2fe")
 Speed = 600
 Health = 5
+gun_list = ExtResource("2_yojcs")
 dodge_length = 0.66
 dodge_cooldown = 0.3
 dodge_invincibility_length = 0.6
@@ -453,9 +455,6 @@ animation = &"IdleHands"
 
 [node name="CurrentGun" type="Node2D" parent="."]
 
-[node name="Pistol" parent="CurrentGun" instance=ExtResource("4_nyc7w")]
-position = Vector2(24, 20)
-
 [node name="BlinkTimer" type="Timer" parent="."]
 
 [node name="DynamicCamera" type="Camera2D" parent="."]
@@ -473,3 +472,9 @@ energy = 0.5
 shadow_enabled = true
 texture = ExtResource("12_moxu8")
 texture_scale = 4.35
+
+[node name="GunManager" type="Node" parent="." node_paths=PackedStringArray("player", "current_gun_parent")]
+script = ExtResource("13_r2r1l")
+player = NodePath("..")
+gun_list_resource = ExtResource("2_yojcs")
+current_gun_parent = NodePath("../CurrentGun")

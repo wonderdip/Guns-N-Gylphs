@@ -8,8 +8,11 @@ extends CharacterBody2D
 @onready var hit_box = $HitBox
 @onready var hurt_box = $HurtBox/CollisionShape2D
 @onready var player = self
+@onready var gun_manager = $GunManager
+
 @export var Speed = 0
 @export var Health = 0
+@export var gun_list: GunList  # Add reference to GunList resource
 
 # Dodge roll parameters
 @export var dodge_speed_multiplier: float = 1.1
@@ -17,11 +20,6 @@ extends CharacterBody2D
 @export var dodge_cooldown: float = 0.6
 @export var dodge_invincibility_length: float = 0.5
 var direction
-
-var current_gun_parent: Node2D
-var current_gun: Array
-var current_gun_sprite: Node2D
-var blinking: bool = false
 
 var dodging: bool = false
 var can_dodge: bool = true
@@ -34,9 +32,11 @@ var mouse_pos: Vector2
 
 func _ready():
 	add_to_group("Player")
-	current_gun_parent = get_node("CurrentGun")
-	current_gun = current_gun_parent.get_children()
-	current_gun_sprite = current_gun_parent.get_child(0)
+	
+	# Initialize gun manager
+	gun_manager.player = self
+	gun_manager.current_gun_parent = $CurrentGun
+	gun_manager.gun_list_resource = gun_list
 
 
 func _physics_process(delta):
@@ -75,7 +75,7 @@ func _physics_process(delta):
 	# Enemy collision detection
 	check_enemy_collisions()
 	
-	#visibility handling
+	# Visibility handling
 	hand_visibility()
 
 func start_dodge():
@@ -146,26 +146,30 @@ func check_enemy_collisions():
 
 
 func hand_visibility():
-	
 	mouse_pos = get_global_mouse_position()
 	
 	if dodging:
 		left_hand_sprite.hide()
 		right_hand_sprite.hide()
-		current_gun_sprite.hide()
+		if gun_manager.active_gun:
+			gun_manager.active_gun.visible = false
 		
-	elif current_gun.size() > 0:
-		var current_gun_instance = current_gun[0]  # Assuming the first child is the active gun
-		current_gun_sprite.show()
-		if current_gun_instance.hold_type == 1 and mouse_pos.x < global_position.x:
+	elif gun_manager.active_gun:
+		gun_manager.active_gun.visible = true
+		var hold_type = gun_manager.active_gun.hold_type
+		
+		if hold_type == 1 and mouse_pos.x < global_position.x:
 			left_hand_sprite.hide()
 			right_hand_sprite.show()
-		elif current_gun_instance.hold_type == 1 and mouse_pos.x > global_position.x:
+		elif hold_type == 1 and mouse_pos.x > global_position.x:
 			left_hand_sprite.show()
 			right_hand_sprite.hide()
-		elif current_gun_instance.hold_type == 2:
+		elif hold_type == 2:
 			left_hand_sprite.hide()
 			right_hand_sprite.hide()
+		else:  # hold_type == 0
+			left_hand_sprite.show()
+			right_hand_sprite.show()
 	else:
 		left_hand_sprite.show()
 		right_hand_sprite.show()
@@ -216,4 +220,3 @@ func hit_flash():
 	hit_flash_player.play("HitFlash")
 	await hit_flash_player.animation_finished
 	blink(1)
-	

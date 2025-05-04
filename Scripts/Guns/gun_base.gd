@@ -1,25 +1,40 @@
 extends Node2D
 class_name Gun
 
-@export var bullet: PackedScene
-@export var damage: int = 0
-@export var magazine_size: int = 0
-@export var bullet_count: int = 0
-@export var reload_time: float = 0
-@export_range(0, 2) var hold_type: int = 0
-@export_range(0, 360) var shot_radius: float = 0
-@export_range(0, 1000) var shot_delay: float = 0
+# Gun properties - these will be set from GunResource
+var bullet: PackedScene
+var damage: int = 0
+var magazine_size: int = 0
+var bullet_count: int = 0
+var reload_time: float = 0
+var hold_type: int = 0
+var shot_radius: float = 0
+var shot_delay: float = 0
 
 @onready var shot_particles = $Pivot/GunSprite/BulletPoint/ShotParticles
 @onready var gun_sprite = $Pivot/GunSprite
 @onready var bullet_point = $Pivot/GunSprite/BulletPoint
 @onready var pivot = $Pivot
-@onready var player: Node2D = get_node("/root/World/Player")
+var player: CharacterBody2D
 
 var can_shoot: bool = true 
 var current_mag_size: int = magazine_size
 var reloading: bool = false
+var gun_name: String = "Default Gun"
 
+# Configure gun from resource
+func configure_from_resource(resource: GunResource) -> void:
+	
+	gun_name = resource.gun_name
+	bullet = resource.bullet
+	damage = resource.damage
+	magazine_size = resource.magazine_size
+	current_mag_size = magazine_size
+	bullet_count = resource.bullet_count
+	reload_time = resource.reload_time
+	hold_type = resource.hold_type
+	shot_radius = resource.shot_radius
+	shot_delay = resource.shot_delay
 
 func _process(_delta):
 	call_deferred("update_art")
@@ -42,7 +57,7 @@ func update_art():
 	
 func _ready():
 	current_mag_size = magazine_size  # Start fully loaded
-
+	player = get_tree().get_root().find_child("Player", true, false)
 
 func shoot():
 	if not can_shoot or reloading:
@@ -80,7 +95,6 @@ func shoot():
 		reload()
 	else:
 		can_shoot = true  # Otherwise, allow shooting again
-
 
 
 func reload():
