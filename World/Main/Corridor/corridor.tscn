@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxfgwqwutdb5s"]
+
+[ext_resource type="Script" path="res://World/Main/Corridor/Corridor.gd" id="1_icwyc"]
+[ext_resource type="Resource" uid="uid://8hyl452qo5ob" path="res://World/TileMap/TileDefinitions.tres" id="2_a3fu1"]
+[ext_resource type="TileSet" uid="uid://ciskxo1sn8ydu" path="res://World/TileMap/WorldTileSet.tres" id="3_jyrn6"]
+
+[node name="Corridor" type="Node2D"]
+script = ExtResource("1_icwyc")
+tile_definitions = ExtResource("2_a3fu1")
+
+[node name="TileMap" type="TileMap" parent="."]
+scale = Vector2(4, 4)
+tile_set = ExtResource("3_jyrn6")
+format = 2
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]

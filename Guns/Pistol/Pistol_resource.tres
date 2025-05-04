@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GunResource" load_steps=3 format=3 uid="uid://b8jc2g6ypenha"]
+
+[ext_resource type="PackedScene" uid="uid://bd74oxxoi3new" path="res://Guns/Pistol/Pistol.tscn" id="2_7g7fl"]
+[ext_resource type="Script" path="res://Guns/GunResource.gd" id="3_57wuy"]
+
+[resource]
+script = ExtResource("3_57wuy")
+gun_name = "Pistol"
+gun_scene = ExtResource("2_7g7fl")
+damage = 1
+magazine_size = 8
+bullet_count = 1
+reload_time = 1.0
+hold_type = 1
+shot_radius = 0.0
+shot_delay = 0.2
+description = "A basic gun"
+unlocked = true

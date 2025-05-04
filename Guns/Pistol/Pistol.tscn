@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3 uid="uid://bd74oxxoi3new"]
+
+[ext_resource type="Script" path="res://Guns/Pistol/pistol.gd" id="1_xspbr"]
+[ext_resource type="Texture2D" uid="uid://ds2o4rnwpt0ad" path="res://Guns/Art/Guns.png" id="2_y3ba6"]
+
+[sub_resource type="Curve" id="Curve_tce1w"]
+resource_local_to_scene = true
+_data = [Vector2(0, 0.681319), 0.0, 0.0, 0, 0, Vector2(0.994382, 0.285714), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_c7h21"]
+offsets = PackedFloat32Array(0, 0.553333, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.858824, 1, 1, 1, 0)
+
+[node name="Pistol" type="Node2D"]
+position = Vector2(-1, 0)
+scale = Vector2(4, 4)
+script = ExtResource("1_xspbr")
+
+[node name="Pivot" type="Marker2D" parent="."]
+
+[node name="GunSprite" type="Sprite2D" parent="Pivot"]
+position = Vector2(4, -5)
+texture = ExtResource("2_y3ba6")
+hframes = 10
+vframes = 10
+frame = 2
+
+[node name="BulletPoint" type="Marker2D" parent="Pivot/GunSprite"]
+position = Vector2(5, 1)
+
+[node name="ShotParticles" type="CPUParticles2D" parent="Pivot/GunSprite/BulletPoint"]
+emitting = false
+amount = 5
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+spread = 20.0
+gravity = Vector2(0, 800)
+initial_velocity_min = 60.0
+initial_velocity_max = 100.0
+scale_amount_min = 4.0
+scale_amount_max = 8.0
+scale_amount_curve = SubResource("Curve_tce1w")
+color_ramp = SubResource("Gradient_c7h21")

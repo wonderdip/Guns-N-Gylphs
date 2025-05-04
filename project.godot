@@ -11,15 +11,15 @@ config_version=5
 [application]
 
 config/name="Guns and Glyphs"
-run/main_scene="res://Scenes/World.tscn"
+run/main_scene="res://World/Main/World.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
-config/icon="res://Assets/Characters/Archeologist.png"
+config/icon="res://Characters/Player/Art/Archeologist.png"
 
 [autoload]
 
-FreezeFrameManager="*res://Scripts/Autoloads/freeze_frame_manager.gd"
-CameraShakeManager="*res://Scripts/Autoloads/camera_shake_manager.gd"
-PlayerPositionManager="*res://Scripts/Autoloads/player_position_manager.gd"
+FreezeFrameManager="*res://World/Autoloads/freeze_frame_manager.gd"
+CameraShakeManager="*res://World/Autoloads/camera_shake_manager.gd"
+PlayerPositionManager="*res://Characters/Player/player_position_manager.gd"
 
 [display]
 

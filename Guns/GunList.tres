@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="GunList" load_steps=2 format=3 uid="uid://bhfqpwxepkngo"]
+
+[ext_resource type="Script" path="res://Guns/GunList.gd" id="1_ipido"]
+
+[resource]
+script = ExtResource("1_ipido")
+guns = Array[Resource("res://Guns/GunResource.gd")]([])
