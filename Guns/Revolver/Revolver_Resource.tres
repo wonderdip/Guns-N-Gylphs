@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="GunResource" load_steps=4 format=3 uid="uid://dv5xjr4polbuq"]
+
+[ext_resource type="Script" path="res://Guns/GunResource.gd" id="1_6iqfx"]
+[ext_resource type="PackedScene" uid="uid://bavbg0os2aqsl" path="res://Guns/Revolver/Revolver_Bullet.tscn" id="1_xxfvu"]
+[ext_resource type="PackedScene" uid="uid://dfdb7u4abxuw6" path="res://Guns/Revolver/Revolver.tscn" id="2_7c52k"]
+
+[resource]
+script = ExtResource("1_6iqfx")
+gun_name = "Revolver"
+gun_scene = ExtResource("2_7c52k")
+damage = 8
+magazine_size = 6
+bullet_count = 1
+reload_time = 1.0
+hold_type = 1
+shot_radius = 0.0
+shot_delay = 0.3
+bullet = ExtResource("1_xxfvu")
+description = "Old Timey Revolver"
+unlocked = true

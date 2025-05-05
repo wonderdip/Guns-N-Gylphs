@@ -65,17 +65,9 @@ func _physics_process(delta):
 			start_dodge()
 	
 	move_and_slide()
-	
-	# Animation handling
 	update_animations()
-	
-	# Handle facing direction based on mouse position
 	sprite_facing()
-	
-	# Enemy collision detection
 	check_enemy_collisions()
-	
-	# Visibility handling
 	hand_visibility()
 
 func start_dodge():
@@ -137,7 +129,6 @@ func check_enemy_collisions():
 	var overlapping_enemies: Array = %HurtBox.get_overlapping_bodies()
 	if overlapping_enemies.size() > 0:
 		for enemy in overlapping_enemies:
-			# Assuming each Enemy has a `damage` property
 			if enemy is Enemy:
 				Health -= enemy.Damage
 				print(Health)

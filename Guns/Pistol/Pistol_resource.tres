@@ -8,7 +8,7 @@
 script = ExtResource("3_57wuy")
 gun_name = "Pistol"
 gun_scene = ExtResource("2_7g7fl")
-damage = 1
+damage = 5
 magazine_size = 8
 bullet_count = 1
 reload_time = 1.0
@@ -16,5 +16,5 @@ hold_type = 1
 shot_radius = 0.0
 shot_delay = 0.2
 bullet = ExtResource("1_76qya")
-description = "A basic gun"
+description = "A basic Pistol"
 unlocked = true

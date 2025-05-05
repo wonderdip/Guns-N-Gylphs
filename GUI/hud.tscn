@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://bx6apwy0hcjsy"]
 
 [ext_resource type="Script" path="res://GUI/hud.gd" id="1_lngrp"]
-[ext_resource type="Texture2D" uid="uid://6jasx6sdtb38" path="res://Guns/Art/bullet.png" id="2_qjnxg"]
+[ext_resource type="Texture2D" uid="uid://b03jlsyl0jqo8" path="res://Guns/Art/Bullets.png" id="2_i7xcn"]
 [ext_resource type="PackedScene" uid="uid://8mpb0gddst7g" path="res://GUI/MiniMap.tscn" id="3_xw237"]
 
 [node name="HUD" type="Node2D"]
@@ -20,8 +20,10 @@ horizontal_alignment = 1
 [node name="AmmoSprite" type="Sprite2D" parent="CanvasLayer"]
 position = Vector2(1100, 48)
 scale = Vector2(4, 4)
-texture = ExtResource("2_qjnxg")
+texture = ExtResource("2_i7xcn")
 flip_h = true
+hframes = 10
+vframes = 10
 
 [node name="MiniMap" parent="." instance=ExtResource("3_xw237")]
 process_mode = 4

@@ -1,15 +1,25 @@
-[gd_scene load_steps=4 format=3 uid="uid://dcb07uhdlqysu"]
+[gd_scene load_steps=6 format=3 uid="uid://dcb07uhdlqysu"]
 
 [ext_resource type="Script" path="res://Guns/BulletBase.gd" id="1_4m7s5"]
-[ext_resource type="Texture2D" uid="uid://6jasx6sdtb38" path="res://Guns/Art/bullet.png" id="2_apjg2"]
+[ext_resource type="Texture2D" uid="uid://b03jlsyl0jqo8" path="res://Guns/Art/Bullets.png" id="2_fxcac"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_i043x"]
-radius = 20.0
-height = 70.9999
+[sub_resource type="CircleShape2D" id="CircleShape2D_jxi51"]
+radius = 24.0
 
-[node name="Bullets" type="Node2D"]
+[sub_resource type="Gradient" id="Gradient_6wqqw"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.448052)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_fqfpx"]
+gradient = SubResource("Gradient_6wqqw")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[node name="Pistol_Bullet" type="Node2D"]
 scale = Vector2(4, 4)
 script = ExtResource("1_4m7s5")
+Speed = 700
 
 [node name="Area2D" type="Area2D" parent="."]
 top_level = true
@@ -17,11 +27,22 @@ collision_layer = 2
 collision_mask = 6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2(-0.5, 0)
+position = Vector2(2, 2)
 rotation = 1.5708
-shape = SubResource("CapsuleShape2D_i043x")
+shape = SubResource("CircleShape2D_jxi51")
 
 [node name="BulletSprite" type="Sprite2D" parent="."]
-texture = ExtResource("2_apjg2")
+modulate = Color(1.3, 1, 1, 1)
+z_index = 1
+texture = ExtResource("2_fxcac")
+hframes = 10
+vframes = 10
+frame = 1
+
+[node name="PointLight2D" type="PointLight2D" parent="BulletSprite"]
+position = Vector2(0.5, 0.5)
+shadow_enabled = true
+texture = SubResource("GradientTexture2D_fqfpx")
+texture_scale = 0.3
 
 [connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]

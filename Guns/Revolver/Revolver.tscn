@@ -1,33 +1,33 @@
-[gd_scene load_steps=5 format=3 uid="uid://bd74oxxoi3new"]
+[gd_scene load_steps=5 format=3 uid="uid://dfdb7u4abxuw6"]
 
-[ext_resource type="Script" path="res://Guns/Pistol/pistol.gd" id="1_xspbr"]
-[ext_resource type="Texture2D" uid="uid://ds2o4rnwpt0ad" path="res://Guns/Art/Guns.png" id="2_y3ba6"]
+[ext_resource type="Texture2D" uid="uid://ds2o4rnwpt0ad" path="res://Guns/Art/Guns.png" id="1_a4g4x"]
+[ext_resource type="Script" path="res://Guns/Pistol/pistol.gd" id="1_jv28k"]
 
-[sub_resource type="Curve" id="Curve_tce1w"]
+[sub_resource type="Curve" id="Curve_sjgcp"]
 resource_local_to_scene = true
 _data = [Vector2(0, 0.681319), 0.0, 0.0, 0, 0, Vector2(0.994382, 0.285714), 0.0, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="Gradient" id="Gradient_c7h21"]
+[sub_resource type="Gradient" id="Gradient_xdpmp"]
 offsets = PackedFloat32Array(0, 0.553333, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.858824, 1, 1, 1, 0)
 
-[node name="Pistol" type="Node2D"]
-position = Vector2(16, 24)
+[node name="Revolver" type="Node2D"]
+position = Vector2(20, 20)
 scale = Vector2(4, 4)
-script = ExtResource("1_xspbr")
+script = ExtResource("1_jv28k")
 
 [node name="Pivot" type="Marker2D" parent="."]
 
 [node name="GunSprite" type="Sprite2D" parent="Pivot"]
-position = Vector2(4, -5)
-texture = ExtResource("2_y3ba6")
+position = Vector2(5, -4)
+texture = ExtResource("1_a4g4x")
 hframes = 10
 vframes = 10
-frame = 2
+frame = 3
 
 [node name="BulletPoint" type="Marker2D" parent="Pivot/GunSprite"]
-position = Vector2(5, 1)
+position = Vector2(8, -1)
 
 [node name="ShotParticles" type="CPUParticles2D" parent="Pivot/GunSprite/BulletPoint"]
 emitting = false
@@ -41,5 +41,5 @@ initial_velocity_min = 60.0
 initial_velocity_max = 100.0
 scale_amount_min = 4.0
 scale_amount_max = 8.0
-scale_amount_curve = SubResource("Curve_tce1w")
-color_ramp = SubResource("Gradient_c7h21")
+scale_amount_curve = SubResource("Curve_sjgcp")
+color_ramp = SubResource("Gradient_xdpmp")

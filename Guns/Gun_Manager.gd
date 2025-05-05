@@ -10,6 +10,7 @@ class_name GunManager
 var current_gun_index: int = 0
 var equipped_guns: Array[String] = []  # Names of guns the player has
 var active_gun: Gun = null
+var can_switch: bool = true
 
 func _ready():
 	# Initialize with the first gun if available
@@ -24,22 +25,32 @@ func _ready():
 	
 
 func _process(_delta):
-	# Handle weapon switching
-	if Input.is_action_just_pressed("next_weapon"):
-		next_gun()
-	elif Input.is_action_just_pressed("prev_weapon"):
-		prev_gun()
-	print(equipped_guns)
+	if can_switch == true:
+		# Handle weapon switching
+		if Input.is_action_just_pressed("next_weapon"):
+			next_gun()
+		elif Input.is_action_just_pressed("prev_weapon"):
+			prev_gun()
+
+
+func weapon_switch_check():
+	if can_switch == false:
+		await get_tree().create_timer(1).timeout
+		can_switch = true
 
 func next_gun():
 	var next_index = (current_gun_index + 1) % equipped_guns.size()
 	equip_gun(next_index)
+	can_switch = false
+	weapon_switch_check()
 
 func prev_gun():
 	var prev_index = (current_gun_index - 1)
 	if prev_index < 0:
 		prev_index = equipped_guns.size() - 1
 	equip_gun(prev_index)
+	can_switch = false
+	weapon_switch_check()
 
 func equip_gun(index: int):
 	if index < 0 or index >= equipped_guns.size():

@@ -34,7 +34,6 @@ func update_ammo_display():
 	# Clear existing sprites
 	clear_ammo_sprites()
 	
-	
 	# Create new sprites based on current ammo
 	if current_gun and "current_mag_size" in current_gun:
 		# Make sure your gun has this property
