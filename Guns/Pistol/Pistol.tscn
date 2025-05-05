@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bd74oxxoi3new"]
 
-[ext_resource type="Script" path="res://Guns/gun_base.gd" id="2_1jofh"]
+[ext_resource type="Script" path="res://Guns/Pistol/pistol.gd" id="1_o8es4"]
 [ext_resource type="Texture2D" uid="uid://ds2o4rnwpt0ad" path="res://Guns/Art/Guns.png" id="2_y3ba6"]
 
 [sub_resource type="Curve" id="Curve_tce1w"]
@@ -15,7 +15,7 @@ colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.858824, 1, 1, 1, 0)
 [node name="Pistol" type="Node2D"]
 position = Vector2(16, 24)
 scale = Vector2(4, 4)
-script = ExtResource("2_1jofh")
+script = ExtResource("1_o8es4")
 
 [node name="Pivot" type="Marker2D" parent="."]
 

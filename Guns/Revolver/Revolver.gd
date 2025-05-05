@@ -1,5 +1,20 @@
 extends Gun
 
+func _process(delta):
+	if Input.is_action_just_pressed("reload"):
+		reload()
+	
+	if Input.is_action_just_pressed("shoot"):
+		shoot()
+		CameraShakeManager.cam_shake(5, 2, 0.2)
+		
+	# Update shoot state
+	can_shoot = not player.dodging and not reloading
+	
+	if can_shoot:
+		update_art()
+	else:
+		pivot.rotation += deg_to_rad(720) * delta  # spin!
 
 func update_art():
 	var mouse_pos = get_global_mouse_position()
@@ -9,14 +24,12 @@ func update_art():
 	var angle = (mouse_pos - pivot_pos).angle()
 	pivot.global_rotation = angle
 
-	# Only flip if the mouse is clearly on one side
+	# Flip sprite
 	var delta_x = mouse_pos.x - pivot_pos.x
 	if delta_x < -dead_zone:
 		pivot.scale.y = -1
 	elif delta_x > dead_zone:
 		pivot.scale.y = 1
-
-
 
 
 

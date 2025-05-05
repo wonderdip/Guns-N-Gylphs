@@ -50,8 +50,9 @@ func _process(_delta):
 		can_shoot = false
 	else:
 		can_shoot = true
-	
-	
+
+
+
 func update_art():
 	var mouse_pos = get_global_mouse_position()
 	var pivot_pos = pivot.global_position
@@ -60,12 +61,13 @@ func update_art():
 	var angle = (mouse_pos - pivot_pos).angle()
 	pivot.global_rotation = angle
 
-	# Only flip if the mouse is clearly on one side
+	# Flip sprite
 	var delta_x = mouse_pos.x - pivot_pos.x
 	if delta_x < -dead_zone:
 		pivot.scale.y = -1
 	elif delta_x > dead_zone:
 		pivot.scale.y = 1
+
 
 func _ready():
 	# Initialize gun state
@@ -110,8 +112,7 @@ func shoot():
 		reload()
 	else:
 		can_shoot = true  # Otherwise, allow shooting again
-
-
+	
 func reload():
 	# Don't reload if we're already reloading or if the magazine is already full
 	if reloading or current_mag_size >= magazine_size:
