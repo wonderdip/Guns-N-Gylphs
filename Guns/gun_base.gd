@@ -15,16 +15,16 @@ var shot_delay: float = 0
 @onready var gun_sprite = $Pivot/GunSprite
 @onready var bullet_point = $Pivot/GunSprite/BulletPoint
 @onready var pivot = $Pivot
-var player: CharacterBody2D
+@onready var player: Node2D = get_node("/root/World/Player")
 
 var can_shoot: bool = true 
 var current_mag_size: int = magazine_size
 var reloading: bool = false
 var gun_name: String = "Default Gun"
+var dead_zone: float = 5.0
 
 # Configure gun from resource
 func configure_from_resource(resource: GunResource) -> void:
-	
 	gun_name = resource.gun_name
 	bullet = resource.bullet
 	damage = resource.damage
@@ -53,11 +53,26 @@ func _process(_delta):
 	
 	
 func update_art():
-	pass
-	
+	var mouse_pos = get_global_mouse_position()
+	var pivot_pos = pivot.global_position
+
+	# Rotate the pivot toward the mouse
+	var angle = (mouse_pos - pivot_pos).angle()
+	pivot.global_rotation = angle
+
+	# Only flip if the mouse is clearly on one side
+	var delta_x = mouse_pos.x - pivot_pos.x
+	if delta_x < -dead_zone:
+		pivot.scale.y = -1
+	elif delta_x > dead_zone:
+		pivot.scale.y = 1
+
 func _ready():
+	# Initialize gun state
 	current_mag_size = magazine_size  # Start fully loaded
-	player = get_tree().get_root().find_child("Player", true, false)
+	reloading = false
+	can_shoot = true
+
 
 func shoot():
 	if not can_shoot or reloading:
@@ -98,12 +113,23 @@ func shoot():
 
 
 func reload():
-	if reloading:
-		return  # Prevent multiple reloads at once
+	# Don't reload if we're already reloading or if the magazine is already full
+	if reloading or current_mag_size >= magazine_size:
+		return
+	
+	# Start reload process
 	reloading = true
 	can_shoot = false  # Disable shooting while reloading
 	
-	await get_tree().create_timer(reload_time).timeout  # Simulate reload time
-	current_mag_size = magazine_size  # Reload magazine
-	reloading = false
-	can_shoot = true  # Allow shooting again
+	# Create a timer for reload
+	var reload_timer = get_tree().create_timer(reload_time)
+	
+	# Wait for reload time to complete
+	await reload_timer.timeout
+	
+	# Only complete the reload if the gun still exists and hasn't been removed
+	if is_instance_valid(self) and not is_queued_for_deletion():
+		# Reload complete
+		current_mag_size = magazine_size
+		reloading = false
+		can_shoot = true

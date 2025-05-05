@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dfdb7u4abxuw6"]
 
 [ext_resource type="Texture2D" uid="uid://ds2o4rnwpt0ad" path="res://Guns/Art/Guns.png" id="1_a4g4x"]
-[ext_resource type="Script" path="res://Guns/Pistol/pistol.gd" id="1_jv28k"]
+[ext_resource type="Script" path="res://Guns/gun_base.gd" id="2_omf2n"]
 
 [sub_resource type="Curve" id="Curve_sjgcp"]
 resource_local_to_scene = true
@@ -15,7 +15,7 @@ colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.858824, 1, 1, 1, 0)
 [node name="Revolver" type="Node2D"]
 position = Vector2(20, 20)
 scale = Vector2(4, 4)
-script = ExtResource("1_jv28k")
+script = ExtResource("2_omf2n")
 
 [node name="Pivot" type="Marker2D" parent="."]
 
