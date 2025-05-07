@@ -12,7 +12,7 @@ func _process(delta):
 	can_shoot = not player.dodging and not reloading
 	
 	if can_shoot:
-		update_art()
+		call_deferred("update_art")
 	else:
 		pivot.rotation += deg_to_rad(720) * delta  # spin!
 
