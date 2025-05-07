@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=3 uid="uid://bwhh0x1bwn8sn"]
+
+[ext_resource type="Script" path="res://World/Main/Rooms/ChestRoom/ChestRoom.gd" id="1_v8hg4"]
+[ext_resource type="PackedScene" uid="uid://bnsk20knm106r" path="res://World/Main/Door/door.tscn" id="2_o0fwn"]
+[ext_resource type="PackedScene" uid="uid://1qep0ofbw5ip" path="res://World/Main/Rooms/ChestRoom/Chest.tscn" id="2_rm2d4"]
+[ext_resource type="Resource" uid="uid://8hyl452qo5ob" path="res://World/TileMap/TileDefinitions.tres" id="3_57qcw"]
+[ext_resource type="TileSet" uid="uid://ciskxo1sn8ydu" path="res://World/TileMap/WorldTileSet.tres" id="5_whqee"]
+
+[node name="ChestRoom" type="Node2D"]
+script = ExtResource("1_v8hg4")
+chest_scene = ExtResource("2_rm2d4")
+door = ExtResource("2_o0fwn")
+tile_definitions = ExtResource("3_57qcw")
+
+[node name="TileMap" type="TileMap" parent="."]
+scale = Vector2(4, 4)
+tile_set = ExtResource("5_whqee")
+format = 2
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]

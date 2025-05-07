@@ -30,7 +30,7 @@ func _ready():
 		# Equip the first gun
 		if equipped_guns.size() > 0:
 			equip_gun(0)
-
+	add_to_group("GunManager")
 
 func _process(_delta):
 	if can_switch == true:

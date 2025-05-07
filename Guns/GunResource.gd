@@ -19,3 +19,5 @@ class_name GunResource
 @export var bullet: PackedScene
 @export var description: String = "A basic gun"
 @export var unlocked: bool = true  # Whether this gun is available to the player
+@export var chance : float
+@export_enum("Common", "Uncommon", "Rare", "Epic", "Legendary") var rarity : int = 0

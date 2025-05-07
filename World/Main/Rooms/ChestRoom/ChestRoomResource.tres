@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RoomType" load_steps=3 format=3 uid="uid://calpjw1u2xt6g"]
+
+[ext_resource type="PackedScene" uid="uid://bwhh0x1bwn8sn" path="res://World/Main/Rooms/ChestRoom/ChestRoom.tscn" id="1_3gn5l"]
+[ext_resource type="Script" path="res://World/Main/Rooms/RoomTypeResource.gd" id="1_pej1w"]
+
+[resource]
+script = ExtResource("1_pej1w")
+weight = 1.0
+scene = ExtResource("1_3gn5l")
+is_special = true
+max_instances = -1

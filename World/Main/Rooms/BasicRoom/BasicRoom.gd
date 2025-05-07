@@ -1,4 +1,5 @@
 extends Node2D
+class_name BasicRoom
 
 signal enemies_defeated
 
@@ -12,7 +13,7 @@ signal enemies_defeated
 @export var enemies_per_room: int
 @export var enemies: Array[PackedScene] = []
 
-
+# Basic Room
 
 # Room states
 enum RoomState {LOCKED, UNLOCKED, CLEARED}
@@ -263,7 +264,7 @@ func _spawn_single_enemy(enemy_scene):
 
 func _on_enemy_defeated():
 	enemies_remaining -= 1
-	print(enemies_remaining)
+	print("Enemies in room = ", enemies_remaining)
 	if enemies_remaining <= 0:
 		all_enemies_defeated()
 		

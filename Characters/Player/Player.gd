@@ -131,7 +131,7 @@ func check_enemy_collisions():
 		for enemy in overlapping_enemies:
 			if enemy is Enemy:
 				Health -= enemy.Damage
-				print(Health)
+				print("Health = ",Health)
 				took_damage()
 				
 

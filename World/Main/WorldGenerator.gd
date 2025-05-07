@@ -16,8 +16,10 @@ signal dungeon_ready
 @export var use_custom_seed = false  # Whether to use a custom seed
 @export var custom_seed = 0  # Custom seed value if enabled
 
+# Room types and chances
+@export var room_types: Array[RoomType] = []
+
 # Scene references
-@export var room_scene: PackedScene
 @export var corridor_scene: PackedScene
 
 # Tracking variables
@@ -91,8 +93,13 @@ func generate_dungeon():
 	# First, decide how many rooms to create
 	var num_rooms = randi_range(min_rooms, max_rooms)
 	
-	# Start with the first room at a fixed position
-	create_room(first_room_position.x, first_room_position.y, 1)
+	# Initialize room type instance counters
+	var room_type_instances = {}
+	for i in range(room_types.size()):
+		room_type_instances[i] = 0
+	
+	# Start with the first room at a fixed position (always use regular room for first room)
+	create_room(first_room_position.x, first_room_position.y, 1, 0)  # Index 0 is assumed to be the default room type
 	
 	# Now generate the rest of the rooms through expansion
 	var current_room_count = 1
@@ -115,17 +122,54 @@ func generate_dungeon():
 				# Random chance to create a room
 				if randf() <= room_chance:
 					current_room_count += 1
-					create_room(new_pos.x, new_pos.y, current_room_count)
+					
+					# Select a room type based on weighted probability
+					var room_type_index = select_room_type(room_type_instances)
+					
+					create_room(new_pos.x, new_pos.y, current_room_count, room_type_index)
 					create_corridor(source_pos, new_pos, source_index, current_room_count)
+					
+					# Increment the instance counter for this room type
+					room_type_instances[room_type_index] += 1
 					break
 	
 	print("Generated dungeon with ", rooms.size(), " rooms using seed: ", current_seed)
 	unlock_rooms_connected_to(1)
 
+func select_room_type(room_type_instances):
+	# Calculate total available weight
+	var total_weight = 0.0
+	var available_types = []
+	
+	for i in range(room_types.size()):
+		var room_type = room_types[i]
+		if room_type.max_instances == -1 or room_type_instances[i] < room_type.max_instances:
+			total_weight += room_type.weight
+			available_types.append(i)
+	
+	# Default to room type 0 if no room types are available (should be the standard room)
+	if available_types.size() == 0:
+		return 0
+		
+	# Select a room type based on weight
+	var random_value = randf() * total_weight
+	var cumulative_weight = 0.0
+	
+	for type_index in available_types:
+		cumulative_weight += room_types[type_index].weight
+		if random_value <= cumulative_weight:
+			return type_index
+	
+	# Fallback to the first available type
+	return available_types[0]
+
 func is_valid_position(pos):
 	return pos.x >= 0 and pos.x < grid_size.x and pos.y >= 0 and pos.y < grid_size.y
 
-func create_room(x, y, index):
+func create_room(x, y, index, room_type_index):
+	# Get the room scene based on the type index
+	var room_scene = room_types[room_type_index].scene
+	
 	# Create a new room instance
 	var room_instance = room_scene.instantiate()
 	add_child(room_instance)
@@ -151,7 +195,9 @@ func create_room(x, y, index):
 		"index": index,
 		"pixel_pos": room_instance.position,
 		"pixel_size": Vector2(room_pixel_width, room_pixel_height),
-		"state": room_instance.current_state
+		"state": room_instance.current_state,
+		"room_type": room_type_index,
+		"is_special": room_types[room_type_index].is_special
 	}
 	
 	rooms.append(room_data)
@@ -159,7 +205,7 @@ func create_room(x, y, index):
 	
 	# Setup the room
 	room_instance.setup(Vector2(room_width_tiles, room_height_tiles), tile_size, index, door_width)
-	print(room_data)
+	print("Created room with index: ", index, " type: ", room_type_index, " at position: ", Vector2(x, y))
 
 func create_corridor(from_pos, to_pos, from_index, to_index):
 	# Store the connection information
@@ -308,5 +354,3 @@ func get_room_at_grid_position(grid_pos):
 				if room["index"] == room_index:
 					return room
 	return null
-
-

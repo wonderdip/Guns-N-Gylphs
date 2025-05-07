@@ -18,3 +18,5 @@ shot_delay = 0.3
 bullet = ExtResource("1_xxfvu")
 description = "Old Timey Revolver"
 unlocked = true
+chance = 0.0
+rarity = 0

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RoomType" load_steps=3 format=3 uid="uid://bk1ccd6bn7nuq"]
+
+[ext_resource type="Script" path="res://World/Main/Rooms/RoomTypeResource.gd" id="1_qt72u"]
+[ext_resource type="PackedScene" uid="uid://f0nff436cfba" path="res://World/Main/Rooms/BasicRoom/BasicRoom.tscn" id="1_x8e2o"]
+
+[resource]
+script = ExtResource("1_qt72u")
+weight = 1.0
+scene = ExtResource("1_x8e2o")
+is_special = false
+max_instances = -1
+room_width_tiles = 20
+room_height_tiles = 20

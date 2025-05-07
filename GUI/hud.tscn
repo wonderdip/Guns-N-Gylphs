@@ -27,3 +27,4 @@ vframes = 10
 
 [node name="MiniMap" parent="." instance=ExtResource("3_xw237")]
 process_mode = 4
+visible = false
