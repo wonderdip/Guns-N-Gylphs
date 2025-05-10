@@ -5,5 +5,5 @@
 [node name="Chest" type="Node2D"]
 
 [node name="Chest Sprite" type="Sprite2D" parent="."]
-scale = Vector2(0.578125, 0.40625)
+scale = Vector2(0.863281, 0.692779)
 texture = ExtResource("1_wriol")

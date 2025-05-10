@@ -77,7 +77,7 @@ func start_dodge():
 	can_dodge = false
 	dodge_timer = dodge_length
 	
-	dodge_direction = mouse_dir
+	dodge_direction = direction
 	
 	invincibility(dodge_invincibility_length)
 
